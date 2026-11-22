@@ -199,416 +199,132 @@
     <main class="flex-1">
 
       <!-- =========================================================
-           TAB 1: BERANDA (HALAMAN PUBLIK)
+           TAB 2: APLIKASI GURU (HALAMAN INFORMASI & PORTAL TERPADU)
            ========================================================= -->
-      <div v-if="activeTab === 'beranda'">
-        <!-- Hero Section -->
-        <section class="hero-pattern text-white relative overflow-hidden">
-          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-20 relative z-10">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-              <div class="lg:col-span-8 space-y-6">
-                <div class="flex flex-wrap items-center gap-2.5">
-                  <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-amber-400 text-slate-950 shadow">
-                    <i class="fa-solid fa-award"></i> Akreditasi {{ school.accreditation }}
-                  </span>
-                  <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white/10 text-blue-100 border border-white/15 backdrop-blur-sm">
-                    <i class="fa-solid fa-id-card text-amber-400"></i> NPSN: {{ school.npsn }}
-                  </span>
-                  <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white/10 text-blue-100 border border-white/15 backdrop-blur-sm">
-                    <i class="fa-solid fa-calendar-days text-amber-400"></i> TA {{ school.academicYear }}
-                  </span>
+      <div v-if="activeTab === 'aplikasi'" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- TAMPILAN 1: INFORMASI & DAFTAR LAYANAN APLIKASI GURU (DEFAULT SAAT TAB DIKLIK) -->
+        <div v-if="!selectedTeacherApp" class="space-y-8">
+          <!-- Banner Informasi Portal Guru -->
+          <div class="hero-pattern text-white rounded-3xl p-8 md:p-10 shadow-xl relative overflow-hidden">
+            <div class="max-w-3xl space-y-4 relative z-10">
+              <span class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-amber-400 text-slate-950">
+                <i class="fa-solid fa-shield-halved"></i> Portal Layanan Digital Pendidik
+              </span>
+              <h1 class="font-display text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight">
+                Pusat Aplikasi Guru & Administrasi Sekolah
+              </h1>
+              <p class="text-sm sm:text-base text-blue-100 leading-relaxed">
+                Selamat datang di portal layanan digital terpadu {{ school.name }}. Silakan pilih salah satu modul layanan di bawah ini untuk mengelola data induk peserta didik maupun perangkat administrasi pembelajaran secara terpusat.
+              </p>
+            </div>
+          </div>
+
+          <!-- Panduan Penggunaan Singkat -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex items-start gap-3.5">
+              <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-800 flex items-center justify-center shrink-0">
+                <i class="fa-solid fa-circle-info"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-sm text-slate-900">1. Pilih Modul Layanan</h3>
+                <p class="text-xs text-slate-500 mt-1 leading-relaxed">Klik tombol <strong>Buka Aplikasi</strong> pada kartu layanan yang ingin Anda akses.</p>
+              </div>
+            </div>
+            <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex items-start gap-3.5">
+              <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+                <i class="fa-solid fa-user-lock"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-sm text-slate-900">2. Akses Terintegrasi</h3>
+                <p class="text-xs text-slate-500 mt-1 leading-relaxed">Aplikasi akan terbuka langsung di dalam portal ini tanpa perlu berpindah alamat situs.</p>
+              </div>
+            </div>
+            <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex items-start gap-3.5">
+              <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                <i class="fa-solid fa-arrows-rotate"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-sm text-slate-900">3. Sinkronisasi Data</h3>
+                <p class="text-xs text-slate-500 mt-1 leading-relaxed">Pastikan koneksi internet stabil saat menyimpan atau memperbarui dokumen sekolah.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Daftar Kartu Layanan Aplikasi Guru (Tanpa Menampilkan URL Mentah) -->
+          <div>
+            <h2 class="font-display text-xl font-bold text-slate-900 mb-4">Daftar Layanan Tersedia</h2>
+            <div v-if="teacherApps.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div
+                v-for="app in teacherApps"
+                :key="app.id"
+                class="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200 shadow-sm hover:shadow-xl hover:border-blue-300 transition duration-300 flex flex-col justify-between group"
+              >
+                <div class="space-y-4">
+                  <div class="flex items-center justify-between">
+                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-slate-900 to-blue-900 text-amber-400 flex items-center justify-center text-2xl shadow-md group-hover:scale-105 transition">
+                      <i :class="app.icon || 'fa-solid fa-window-maximize'"></i>
+                    </div>
+                    <span class="px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      <i class="fa-solid fa-circle-check mr-1"></i> Layanan Aktif
+                    </span>
+                  </div>
+
+                  <div>
+                    <h3 class="font-display text-xl font-extrabold text-slate-900 group-hover:text-blue-800 transition">
+                      {{ app.name }}
+                    </h3>
+                    <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+                      {{ app.description || 'Modul layanan administrasi dan pengelolaan data digital resmi untuk guru serta tenaga kependidikan SD N 2 Ringinarum.' }}
+                    </p>
+                  </div>
                 </div>
 
-                <h1 class="font-display text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight leading-tight">
-                  Selamat Datang di <br class="hidden sm:inline" />
-                  <span class="text-amber-400">{{ school.name }}</span>
-                </h1>
-
-                <p class="text-lg sm:text-xl font-semibold text-blue-100 flex items-center gap-2.5">
-                  <span class="w-8 h-1 bg-amber-400 rounded-full inline-block"></span>
-                  "{{ school.slogan }}"
-                </p>
-
-                <p class="text-slate-300 text-sm sm:text-base max-w-2xl leading-relaxed">
-                  Mewujudkan generasi penerus bangsa yang unggul dalam prestasi akademik dan non-akademik, berkarakter Profil Pelajar Pancasila, mandiri, serta berakhlak mulia di lingkungan belajar yang aman dan menyenangkan.
-                </p>
-
-                <div class="flex flex-wrap gap-3 pt-2">
-                  <a href="#direktori-guru" class="px-6 py-3.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-sm shadow-lg shadow-amber-400/20 transition flex items-center gap-2">
-                    <i class="fa-solid fa-chalkboard-user"></i> Direktori Guru & Tendik
-                  </a>
-                  <button @click="switchTab('saran')" class="px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-sm border border-white/20 backdrop-blur-sm transition flex items-center gap-2">
-                    <i class="fa-solid fa-paper-plane text-amber-400"></i> Kirim Saran & Kesan
+                <div class="mt-6 pt-5 border-t border-slate-100 flex flex-wrap items-center gap-3">
+                  <button
+                    @click="openTeacherApp(app)"
+                    class="flex-1 py-3 px-5 rounded-xl bg-blue-800 hover:bg-blue-900 text-white text-sm font-bold shadow transition flex items-center justify-center gap-2"
+                  >
+                    <i class="fa-solid fa-arrow-right-to-bracket text-amber-400"></i> Buka Aplikasi
                   </button>
+                  <a
+                    :href="app.url"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Buka di jendela browser baru"
+                    class="py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition flex items-center gap-1.5"
+                  >
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i> Tab Baru
+                  </a>
                 </div>
               </div>
+            </div>
 
-              <!-- Hero Emblem Card -->
-              <div class="lg:col-span-4 flex justify-center">
-                <div class="w-64 sm:w-72 bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-6 text-center shadow-2xl">
-                  <div class="w-32 h-32 sm:w-36 sm:h-36 mx-auto rounded-2xl bg-white p-3 shadow-inner flex items-center justify-center overflow-hidden">
-                    <img v-if="school.logoUrl" :src="school.logoUrl" @error="school.logoUrl = ''" alt="Logo SD N 2 Ringinarum" class="w-full h-full object-contain" />
-                    <div v-else class="text-center text-blue-900">
-                      <i class="fa-solid fa-school text-5xl text-blue-800 mb-1"></i>
-                      <p class="text-[10px] font-extrabold uppercase tracking-wider text-slate-600">Tut Wuri Handayani</p>
-                    </div>
-                  </div>
-                  <h2 class="mt-4 font-display font-bold text-lg text-white">{{ school.name }}</h2>
-                  <p class="text-xs text-blue-200 mt-1">{{ school.address }}</p>
-                  <div class="mt-4 pt-4 border-t border-white/15 flex items-center justify-center gap-4 text-xs text-amber-300 font-semibold">
-                    <span><i class="fa-solid fa-shield-halved mr-1"></i> Sekolah Ramah Anak</span>
-                  </div>
-                </div>
-              </div>
+            <div v-else class="bg-white rounded-3xl p-12 text-center border border-slate-200 text-slate-500">
+              Belum ada aplikasi guru yang terdaftar. Admin dapat menambahkannya melalui menu Pengaturan.
             </div>
           </div>
-        </section>
+        </div>
 
-        <!-- Kartu Statistik Ringkas -->
-        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-20">
-          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-            <div class="bg-white rounded-2xl p-5 shadow-md border border-slate-100 flex items-center gap-4">
-              <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-800 flex items-center justify-center text-xl shrink-0">
-                <i class="fa-solid fa-user-tie"></i>
-              </div>
-              <div>
-                <p class="text-2xl sm:text-3xl font-display font-extrabold text-slate-900">{{ activeTeachersCount }}</p>
-                <p class="text-xs sm:text-sm font-medium text-slate-500">Guru & Tendik Aktif</p>
-              </div>
-            </div>
-
-            <div class="bg-white rounded-2xl p-5 shadow-md border border-slate-100 flex items-center gap-4">
-              <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl shrink-0">
-                <i class="fa-solid fa-user-graduate"></i>
-              </div>
-              <div>
-                <p class="text-2xl sm:text-3xl font-display font-extrabold text-slate-900">{{ alumni.length }}</p>
-                <p class="text-xs sm:text-sm font-medium text-slate-500">Alumni Terdata</p>
-              </div>
-            </div>
-
-            <div class="bg-white rounded-2xl p-5 shadow-md border border-slate-100 flex items-center gap-4">
-              <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl shrink-0">
-                <i class="fa-solid fa-images"></i>
-              </div>
-              <div>
-                <p class="text-2xl sm:text-3xl font-display font-extrabold text-slate-900">{{ gallery.length }}</p>
-                <p class="text-xs sm:text-sm font-medium text-slate-500">Dokumentasi Foto</p>
-              </div>
-            </div>
-
-            <div class="bg-white rounded-2xl p-5 shadow-md border border-slate-100 flex items-center gap-4">
-              <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-700 flex items-center justify-center text-xl shrink-0">
-                <i class="fa-solid fa-medal"></i>
-              </div>
-              <div>
-                <p class="text-2xl sm:text-3xl font-display font-extrabold text-slate-900">{{ school.accreditation }}</p>
-                <p class="text-xs sm:text-sm font-medium text-slate-500">Status Akreditasi</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Visi & Misi Sekolah -->
-        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
-          <div class="text-center max-w-2xl mx-auto mb-10">
-            <span class="text-xs font-bold uppercase tracking-widest text-blue-800 bg-blue-100 px-3 py-1 rounded-full">Arah & Tujuan Pendidikan</span>
-            <h2 class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 mt-3">Visi & Misi Sekolah</h2>
-          </div>
-
-          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-            <!-- Kartu Visi (Biru Navy Elegan) -->
-            <div class="lg:col-span-5 bg-gradient-to-br from-slate-900 via-blue-950 to-blue-900 text-white rounded-3xl p-8 shadow-xl flex flex-col justify-between relative overflow-hidden">
-              <div class="absolute -right-8 -bottom-8 text-white/5 text-9xl pointer-events-none">
-                <i class="fa-solid fa-compass"></i>
-              </div>
-              <div>
-                <div class="w-12 h-12 rounded-2xl bg-amber-400 text-slate-950 flex items-center justify-center text-xl font-bold mb-6 shadow-md">
-                  <i class="fa-solid fa-eye"></i>
-                </div>
-                <h3 class="font-display text-2xl font-bold text-amber-400 mb-4">Visi Sekolah</h3>
-                <p class="text-lg sm:text-xl font-medium leading-relaxed text-blue-50 italic">
-                  "{{ school.vision }}"
-                </p>
-              </div>
-              <div class="mt-8 pt-5 border-t border-white/15 flex items-center gap-2 text-xs text-blue-200">
-                <i class="fa-solid fa-star text-amber-400"></i>
-                <span>Pedoman Pengembangan Mutu {{ school.name }}</span>
-              </div>
-            </div>
-
-            <!-- Kartu Misi -->
-            <div class="lg:col-span-7 bg-white rounded-3xl p-8 shadow-md border border-slate-200/80">
-              <div class="flex items-center gap-3 mb-6">
-                <div class="w-11 h-11 rounded-2xl bg-blue-50 text-blue-800 flex items-center justify-center text-lg">
-                  <i class="fa-solid fa-bullseye"></i>
-                </div>
-                <div>
-                  <h3 class="font-display text-xl font-bold text-slate-900">Misi Sekolah</h3>
-                  <p class="text-xs text-slate-500">Langkah strategis mewujudkan visi pendidikan</p>
-                </div>
-              </div>
-
-              <ul class="space-y-3.5">
-                <li v-for="(item, idx) in school.missions" :key="idx" class="flex items-start gap-3.5 p-3 rounded-2xl bg-slate-50/80 border border-slate-100">
-                  <span class="w-6 h-6 rounded-full bg-blue-800 text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
-                    {{ idx + 1 }}
-                  </span>
-                  <span class="text-sm sm:text-base text-slate-700 leading-relaxed">{{ item }}</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </section>
-
-        <!-- Direktori Profil Guru & Tenaga Kependidikan -->
-        <section id="direktori-guru" class="bg-blue-50/60 border-y border-blue-100/80 py-14">
-          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
-              <div>
-                <span class="text-xs font-bold uppercase tracking-widest text-blue-800 bg-white px-3 py-1 rounded-full border border-blue-200">Sumber Daya Manusia</span>
-                <h2 class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 mt-3">Direktori Guru & Tenaga Kependidikan</h2>
-                <p class="text-sm text-slate-600 mt-1">Mengenal pendidik aktif serta menghormati jasa guru & tendik purnabakti.</p>
-              </div>
-
-              <!-- Filter Tab Guru -->
-              <div class="inline-flex bg-white p-1.5 rounded-2xl shadow-sm border border-slate-200 self-start">
-                <button
-                  @click="teacherFilter = 'aktif'"
-                  :class="teacherFilter === 'aktif' ? 'bg-blue-800 text-white shadow' : 'text-slate-600 hover:text-slate-900'"
-                  class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2"
-                >
-                  <i class="fa-solid fa-circle-check text-xs" :class="teacherFilter === 'aktif' ? 'text-amber-400' : 'text-emerald-600'"></i>
-                  Guru Aktif ({{ activeTeachersCount }})
-                </button>
-                <button
-                  @click="teacherFilter = 'purnabakti'"
-                  :class="teacherFilter === 'purnabakti' ? 'bg-slate-800 text-white shadow' : 'text-slate-600 hover:text-slate-900'"
-                  class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2"
-                >
-                  <i class="fa-solid fa-clock-rotate-left text-xs text-amber-500"></i>
-                  Purnabakti ({{ retiredTeachersCount }})
-                </button>
-                <button
-                  @click="teacherFilter = 'semua'"
-                  :class="teacherFilter === 'semua' ? 'bg-blue-800 text-white shadow' : 'text-slate-600 hover:text-slate-900'"
-                  class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition"
-                >
-                  Semua
-                </button>
-              </div>
-            </div>
-
-            <!-- Grid Kartu Guru -->
-            <div v-if="filteredPublicTeachers.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div v-for="t in filteredPublicTeachers" :key="t.id" class="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition duration-300 border border-slate-200/80 flex flex-col group">
-                <div class="relative h-56 bg-gradient-to-b from-blue-100 to-slate-100 overflow-hidden">
-                  <img
-                    v-if="t.photoUrl"
-                    :src="t.photoUrl"
-                    @error="t.photoUrl = ''"
-                    :alt="t.name"
-                    class="w-full h-full object-cover object-top group-hover:scale-105 transition duration-500"
-                    :class="{'grayscale-[40%]': t.status !== 'Aktif'}"
-                  />
-                  <div v-else class="w-full h-full flex flex-col items-center justify-center text-slate-400">
-                    <div class="w-20 h-20 rounded-full bg-white shadow-inner flex items-center justify-center text-3xl text-blue-800 font-display font-bold">
-                      {{ getInitials(t.name) }}
-                    </div>
-                  </div>
-
-                  <!-- Badge Status -->
-                  <div class="absolute top-3 right-3">
-                    <span v-if="t.status === 'Aktif'" class="px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-600 text-white shadow">
-                      Aktif
-                    </span>
-                    <span v-else class="px-3 py-1 rounded-full text-[11px] font-bold bg-slate-800/90 text-amber-300 border border-amber-400/40 shadow">
-                      {{ t.statusNote || 'Purnabakti' }}
-                    </span>
-                  </div>
-                </div>
-
-                <div class="p-5 flex-1 flex flex-col justify-between">
-                  <div>
-                    <h3 class="font-display font-bold text-base text-slate-900 leading-snug">{{ t.name }}</h3>
-                    <p class="text-xs font-semibold text-blue-800 mt-1">{{ t.role }}</p>
-                    <p v-if="t.nip" class="text-[11px] text-slate-500 mt-1 font-mono">NIP. {{ t.nip }}</p>
-                  </div>
-
-                  <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-600">
-                    <span class="flex items-center gap-1.5 font-medium">
-                      <i class="fa-regular fa-calendar text-amber-500"></i>
-                      Masa Bakti:
-                    </span>
-                    <span class="font-bold text-slate-800">{{ t.servicePeriod || '-' }}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div v-else class="bg-white rounded-3xl p-10 text-center border border-slate-200">
-              <i class="fa-solid fa-users-slash text-4xl text-slate-300 mb-3"></i>
-              <p class="text-slate-600 font-medium">Belum ada data guru pada kategori ini.</p>
-            </div>
-          </div>
-        </section>
-
-        <!-- Galeri Foto Kegiatan Sekolah -->
-        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
-          <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
-            <div>
-              <span class="text-xs font-bold uppercase tracking-widest text-amber-700 bg-amber-100 px-3 py-1 rounded-full">Dokumentasi</span>
-              <h2 class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 mt-3">Galeri Kegiatan Sekolah</h2>
-              <p class="text-sm text-slate-600 mt-1">Klik pada foto untuk memperbesar tampilan dokumentasi.</p>
-            </div>
-          </div>
-
-          <div v-if="gallery.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div
-              v-for="item in gallery"
-              :key="item.id"
-              @click="openLightbox(item)"
-              class="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl border border-slate-200/80 cursor-pointer transition duration-300"
-            >
-              <div class="relative h-60 overflow-hidden bg-slate-100">
-                <img
-                  :src="item.imageUrl"
-                  @error="item.imageUrl = 'https://placehold.co/800x600/1e3a8a/ffffff?text=Kegiatan+SD+N+2+Ringinarum'"
-                  :alt="item.title"
-                  class="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-                />
-                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent opacity-80 group-hover:opacity-95 transition"></div>
-                <span class="absolute top-3 left-3 px-3 py-1 rounded-full text-[11px] font-bold bg-blue-900/90 text-amber-300 border border-white/15">
-                  {{ item.category || 'Kegiatan' }}
-                </span>
-                <div class="absolute bottom-3 left-4 right-4 text-white">
-                  <p class="text-[11px] text-amber-300 font-medium mb-0.5">
-                    <i class="fa-regular fa-calendar mr-1"></i> {{ formatDate(item.date) }}
-                  </p>
-                  <h3 class="font-display font-bold text-base line-clamp-1">{{ item.title }}</h3>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div v-else class="bg-white rounded-3xl p-10 text-center border border-slate-200">
-            <i class="fa-regular fa-images text-4xl text-slate-300 mb-3"></i>
-            <p class="text-slate-600 font-medium">Belum ada foto kegiatan yang diunggah.</p>
-          </div>
-        </section>
-
-        <!-- Direktori Alumni di Beranda -->
-        <section class="bg-slate-900 text-white py-14">
-          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8">
-              <div>
-                <span class="text-xs font-bold uppercase tracking-widest text-slate-950 bg-amber-400 px-3 py-1 rounded-full">Jejak Lulusan</span>
-                <h2 class="font-display text-2xl sm:text-3xl font-extrabold text-white mt-3">Direktori Alumni {{ school.name }}</h2>
-                <p class="text-sm text-slate-300 mt-1">Telusuri data lulusan dan sekolah lanjutan (SMP/MTs) berdasarkan nama atau tahun kelulusan.</p>
-              </div>
-
-              <!-- Filter & Search Alumni -->
-              <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
-                <div class="relative flex-1 sm:w-64">
-                  <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-                  <input
-                    v-model="publicAlumniSearch"
-                    type="text"
-                    placeholder="Cari nama atau SMP/MTs..."
-                    class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-amber-400"
-                  />
-                </div>
-                <select
-                  v-model="publicAlumniYear"
-                  class="px-4 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-sm text-white focus:outline-none focus:border-amber-400"
-                >
-                  <option value="">Semua Tahun Lulus</option>
-                  <option v-for="yr in availableAlumniYears" :key="yr" :value="yr">Lulusan {{ yr }}</option>
-                </select>
-              </div>
-            </div>
-
-            <div v-if="filteredPublicAlumni.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div v-for="al in filteredPublicAlumni.slice(0, 12)" :key="al.id" class="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-4 flex items-center gap-3.5 hover:border-amber-400/50 transition">
-                <div class="w-12 h-12 rounded-xl bg-blue-900 text-amber-400 flex items-center justify-center font-display font-bold text-base shrink-0 overflow-hidden border border-slate-600">
-                  <img v-if="al.photoUrl" :src="al.photoUrl" @error="al.photoUrl = ''" :alt="al.name" class="w-full h-full object-cover" />
-                  <span v-else>{{ getInitials(al.name) }}</span>
-                </div>
-                <div class="min-w-0 flex-1">
-                  <h4 class="font-bold text-sm text-white truncate">{{ al.name }}</h4>
-                  <p class="text-xs text-amber-400 font-semibold mt-0.5">Lulusan {{ al.graduationYear }}</p>
-                  <p class="text-[11px] text-slate-300 truncate mt-0.5">
-                    <i class="fa-solid fa-school-flag text-slate-400 mr-1"></i> {{ al.nextSchool || '-' }}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div v-else class="bg-slate-800/60 rounded-2xl p-8 text-center border border-slate-700">
-              <p class="text-slate-300 text-sm">Data alumni tidak ditemukan untuk kata kunci/tahun yang dipilih.</p>
-            </div>
-          </div>
-        </section>
-
-        <!-- Cuplikan Kotak Saran & Kesan yang Disetujui -->
-        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
-          <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
-            <div>
-              <span class="text-xs font-bold uppercase tracking-widest text-blue-800 bg-blue-100 px-3 py-1 rounded-full">Suara Masyarakat</span>
-              <h2 class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 mt-3">Kesan & Saran Wali Murid, Alumni & Tamu</h2>
-            </div>
-            <button @click="switchTab('saran')" class="px-5 py-2.5 rounded-xl bg-blue-800 hover:bg-blue-900 text-white text-sm font-bold shadow transition self-start sm:self-auto flex items-center gap-2">
-              <i class="fa-solid fa-pen-to-square text-amber-400"></i> Tulis Saran / Lihat Semua
-            </button>
-          </div>
-
-          <div v-if="approvedFeedbacks.length > 0" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div v-for="fb in approvedFeedbacks.slice(0, 6)" :key="fb.id" class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200/80 flex flex-col justify-between">
-              <div>
-                <div class="flex items-center justify-between mb-3">
-                  <div class="flex items-center gap-1 text-amber-400 text-sm">
-                    <i v-for="n in 5" :key="n" :class="n <= fb.rating ? 'fa-solid fa-star' : 'fa-regular fa-star text-slate-300'"></i>
-                  </div>
-                  <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-blue-800 border border-blue-100">
-                    {{ fb.role }}
-                  </span>
-                </div>
-                <p class="text-sm text-slate-700 leading-relaxed italic">"{{ fb.message }}"</p>
-              </div>
-              <div class="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between">
-                <div class="flex items-center gap-2.5">
-                  <div class="w-8 h-8 rounded-full bg-slate-900 text-amber-400 text-xs font-bold flex items-center justify-center">
-                    {{ getInitials(fb.senderName) }}
-                  </div>
-                  <div>
-                    <p class="text-xs font-bold text-slate-900">{{ fb.senderName }}</p>
-                    <p class="text-[10px] text-slate-400">{{ formatDate(fb.createdAt) }}</p>
-                  </div>
-                </div>
-                <i class="fa-solid fa-quote-right text-slate-200 text-xl"></i>
-              </div>
-            </div>
-          </div>
-
-          <div v-else class="bg-white rounded-3xl p-10 text-center border border-slate-200">
-            <p class="text-slate-600 text-sm">Belum ada kesan atau saran publik yang ditampilkan.</p>
-          </div>
-        </section>
-      </div>
-
-      <!-- =========================================================
-           TAB 2: APLIKASI GURU (PORTAL TERPADU IFRAME)
-           ========================================================= -->
-      <div v-if="activeTab === 'aplikasi'" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div class="bg-white rounded-3xl shadow-md border border-slate-200 overflow-hidden">
+        <!-- TAMPILAN 2: EMBEDDED IFRAME APLIKASI TERPILIH (TANPA MENAMPILKAN URL MENTAH) -->
+        <div v-else class="bg-white rounded-3xl shadow-md border border-slate-200 overflow-hidden">
           <!-- Sub-Menu & Toolbar Aplikasi -->
           <div class="bg-slate-900 text-white p-4 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <div class="flex flex-wrap items-center gap-2">
               <button
+                @click="backToAppOverview"
+                class="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 text-xs sm:text-sm font-bold transition flex items-center gap-2 border border-slate-700"
+              >
+                <i class="fa-solid fa-arrow-left"></i> Kembali ke Info
+              </button>
+
+              <div class="h-6 w-px bg-slate-700 hidden sm:block mx-1"></div>
+
+              <button
                 v-for="app in teacherApps"
                 :key="app.id"
-                @click="selectTeacherApp(app)"
-                :class="activeAppId === app.id ? 'bg-amber-400 text-slate-950 font-bold shadow' : 'bg-slate-800 text-slate-200 hover:bg-slate-700'"
+                @click="openTeacherApp(app)"
+                :class="selectedTeacherApp.id === app.id ? 'bg-amber-400 text-slate-950 font-bold shadow' : 'bg-slate-800 text-slate-200 hover:bg-slate-700'"
                 class="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center gap-2"
               >
                 <i :class="app.icon || 'fa-solid fa-window-maximize'"></i>
@@ -616,33 +332,28 @@
               </button>
             </div>
 
-            <div v-if="currentTeacherApp" class="flex items-center gap-2 self-end lg:self-auto">
-              <span class="hidden xl:inline-block text-xs text-slate-400 bg-slate-800 px-3 py-1.5 rounded-lg font-mono truncate max-w-xs">
-                {{ currentTeacherApp.url }}
-              </span>
+            <div class="flex items-center gap-2 self-end lg:self-auto">
               <button @click="reloadIframe" class="px-3.5 py-2 rounded-xl bg-blue-800 hover:bg-blue-700 text-white text-xs font-bold transition flex items-center gap-1.5">
                 <i class="fa-solid fa-rotate-right"></i> Muat Ulang
               </button>
-              <a :href="currentTeacherApp.url" target="_blank" rel="noopener noreferrer" class="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-amber-300 text-xs font-bold transition flex items-center gap-1.5">
+              <a :href="selectedTeacherApp.url" target="_blank" rel="noopener noreferrer" class="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-amber-300 text-xs font-bold transition flex items-center gap-1.5">
                 <i class="fa-solid fa-arrow-up-right-from-square"></i> Buka di Tab Baru
               </a>
             </div>
           </div>
 
           <!-- Iframe Container -->
-          <div v-if="currentTeacherApp" class="relative w-full bg-slate-100" style="height: calc(100vh - 210px); min-height: 520px;">
+          <div class="relative w-full bg-slate-100" style="height: calc(100vh - 210px); min-height: 520px;">
             <iframe
               :key="iframeKey"
-              :src="currentTeacherApp.url"
+              :src="selectedTeacherApp.url"
               class="w-full h-full border-0"
-              title="Portal Aplikasi Guru SD N 2 Ringinarum"
+              :title="selectedTeacherApp.name"
               loading="lazy"
             ></iframe>
           </div>
-          <div v-else class="p-12 text-center text-slate-500">
-            Belum ada aplikasi guru yang terdaftar. Admin dapat menambahkannya melalui menu Pengaturan.
-          </div>
         </div>
+
       </div>
 
       <!-- =========================================================
@@ -1038,7 +749,7 @@
                       <button @click="openTeacherModal(t)" class="p-2 rounded-lg text-blue-700 hover:bg-blue-50" title="Edit">
                         <i class="fa-solid fa-pen-to-square"></i>
                       </button>
-                      <button @click="deleteTeacher(t.id)" class="p-2 rounded-lg text-rose-600 hover:bg-rose-50" title="Hapus">
+                      <button @click="confirmDelete('guru', t.id, t.name)" class="p-2 rounded-lg text-rose-600 hover:bg-rose-50" title="Hapus">
                         <i class="fa-solid fa-trash-can"></i>
                       </button>
                     </td>
@@ -1109,7 +820,7 @@
                     <td class="py-3 px-4 text-xs text-slate-600">{{ al.phone || '-' }}</td>
                     <td class="py-3 px-4 text-right space-x-1">
                       <button @click="openAlumniModal(al)" class="p-2 rounded-lg text-blue-700 hover:bg-blue-50"><i class="fa-solid fa-pen-to-square"></i></button>
-                      <button @click="deleteAlumni(al.id)" class="p-2 rounded-lg text-rose-600 hover:bg-rose-50"><i class="fa-solid fa-trash-can"></i></button>
+                      <button @click="confirmDelete('alumni', al.id, al.name)" class="p-2 rounded-lg text-rose-600 hover:bg-rose-50"><i class="fa-solid fa-trash-can"></i></button>
                     </td>
                   </tr>
                 </tbody>
@@ -1144,7 +855,7 @@
                     <button @click="openGalleryModal(g)" class="px-3 py-1.5 rounded-lg bg-white border border-slate-300 text-xs font-bold text-blue-800 hover:bg-blue-50">
                       Edit
                     </button>
-                    <button @click="deleteGallery(g.id)" class="px-3 py-1.5 rounded-lg bg-rose-50 border border-rose-200 text-xs font-bold text-rose-700 hover:bg-rose-100">
+                    <button @click="confirmDelete('galeri', g.id, g.title)" class="px-3 py-1.5 rounded-lg bg-rose-50 border border-rose-200 text-xs font-bold text-rose-700 hover:bg-rose-100">
                       Hapus
                     </button>
                   </div>
@@ -1190,7 +901,7 @@
                       <i :class="fb.approved ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash'"></i>
                       {{ fb.approved ? 'Tampil di Publik' : 'Evaluasi Internal (Tersembunyi)' }}
                     </button>
-                    <button @click="deleteFeedback(fb.id)" class="p-2 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100" title="Hapus Permanen">
+                    <button @click="confirmDelete('saran', fb.id, 'Pesan dari ' + fb.senderName)" class="p-2 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100" title="Hapus Permanen">
                       <i class="fa-solid fa-trash-can text-xs"></i>
                     </button>
                   </div>
@@ -1237,7 +948,7 @@
                     </td>
                     <td class="py-3 px-4 text-right space-x-1">
                       <button @click="openUserModal(u)" class="p-2 rounded-lg text-blue-700 hover:bg-blue-50"><i class="fa-solid fa-pen-to-square"></i></button>
-                      <button v-if="u.email !== 'admin@tworing.id'" @click="deleteUser(u.id)" class="p-2 rounded-lg text-rose-600 hover:bg-rose-50"><i class="fa-solid fa-trash-can"></i></button>
+                      <button v-if="u.email !== 'admin@tworing.id'" @click="confirmDelete('user', u.id, u.name + ' (' + u.email + ')')" class="p-2 rounded-lg text-rose-600 hover:bg-rose-50"><i class="fa-solid fa-trash-can"></i></button>
                     </td>
                   </tr>
                 </tbody>
@@ -1267,12 +978,12 @@
                   </div>
                   <div class="min-w-0">
                     <h4 class="font-bold text-sm text-slate-900 truncate">{{ app.name }}</h4>
-                    <p class="text-xs font-mono text-slate-500 truncate">{{ app.url }}</p>
+                    <p class="text-xs text-slate-500 line-clamp-1">{{ app.description || 'Layanan aplikasi guru terintegrasi' }}</p>
                   </div>
                 </div>
                 <div class="flex items-center gap-1 shrink-0">
                   <button @click="openAppModal(app)" class="p-2 rounded-lg text-blue-700 hover:bg-white"><i class="fa-solid fa-pen-to-square"></i></button>
-                  <button @click="deleteTeacherApp(app.id)" class="p-2 rounded-lg text-rose-600 hover:bg-white"><i class="fa-solid fa-trash-can"></i></button>
+                  <button @click="confirmDelete('aplikasi', app.id, app.name)" class="p-2 rounded-lg text-rose-600 hover:bg-white"><i class="fa-solid fa-trash-can"></i></button>
                 </div>
               </div>
             </div>
@@ -1735,6 +1446,10 @@ function getOrCreateSubFolder(parentFolder, folderName) {
             <input v-model.trim="appModal.data.url" type="url" required placeholder="https://sdn2ringinarum.github.io/..." class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm font-mono" />
           </div>
           <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Deskripsi Layanan *</label>
+            <textarea v-model.trim="appModal.data.description" rows="2" required placeholder="Jelaskan fungsi aplikasi ini untuk ditampilkan pada halaman informasi..." class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm"></textarea>
+          </div>
+          <div>
             <label class="block text-xs font-bold text-slate-700 mb-1">Pilih Ikon</label>
             <select v-model="appModal.data.icon" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm bg-white">
               <option value="fa-solid fa-book">Buku Induk (fa-book)</option>
@@ -1750,6 +1465,41 @@ function getOrCreateSubFolder(parentFolder, folderName) {
             <button type="submit" class="px-5 py-2 rounded-xl bg-blue-800 text-white text-xs font-bold">Simpan Aplikasi</button>
           </div>
         </form>
+      </div>
+    </div>
+
+    <!-- Modal Konfirmasi Hapus Kustom (Semua Aksi Hapus) -->
+    <div v-if="deleteModal.open" @click.self="deleteModal.open = false" class="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-xs flex items-center justify-center p-4">
+      <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 text-center space-y-4">
+        <div class="w-16 h-16 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center text-3xl mx-auto">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <div>
+          <h3 class="font-display font-extrabold text-lg text-slate-900">Konfirmasi Hapus Data</h3>
+          <p class="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
+            Apakah Anda yakin ingin menghapus data berikut secara permanen?
+          </p>
+          <div class="mt-3 px-4 py-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-900 font-bold text-xs sm:text-sm break-words">
+            {{ deleteModal.label }}
+          </div>
+          <p class="text-[11px] text-slate-400 mt-2">Tindakan ini tidak dapat dibatalkan setelah dikonfirmasi.</p>
+        </div>
+        <div class="pt-2 flex items-center justify-center gap-3">
+          <button
+            type="button"
+            @click="deleteModal.open = false"
+            class="flex-1 py-2.5 px-4 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-bold transition"
+          >
+            Batal
+          </button>
+          <button
+            type="button"
+            @click="executeConfirmedDelete"
+            class="flex-1 py-2.5 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs sm:text-sm font-bold shadow-lg shadow-rose-600/20 transition flex items-center justify-center gap-1.5"
+          >
+            <i class="fa-solid fa-trash-can"></i> Ya, Hapus Permanen
+          </button>
+        </div>
       </div>
     </div>
 
@@ -1947,12 +1697,14 @@ function getOrCreateSubFolder(parentFolder, folderName) {
           id: "app-1",
           name: "Buku Induk Siswa",
           url: "https://sdn2ringinarum.github.io/induk",
+          description: "Pengelolaan data induk peserta didik, riwayat mutasi, nomor induk, dan rekapitulasi siswa SD N 2 Ringinarum.",
           icon: "fa-solid fa-book"
         },
         {
           id: "app-2",
           name: "Administrasi Guru",
           url: "https://sdn2ringinarum.github.io/admin-guru",
+          description: "Perangkat pembelajaran, modul ajar, jurnal harian, presensi, dan dokumen administrasi pendidik.",
           icon: "fa-solid fa-clipboard-list"
         }
       ]
@@ -2023,8 +1775,6 @@ function getOrCreateSubFolder(parentFolder, folderName) {
         const publicAlumniSearch = ref("");
         const publicAlumniYear = ref("");
         const feedbackRoleFilter = ref("");
-
-        // Public Feedback Form
         const feedbackForm = reactive({
           senderName: "",
           role: "Wali Murid",
@@ -2032,9 +1782,17 @@ function getOrCreateSubFolder(parentFolder, folderName) {
           message: ""
         });
 
-        // Teacher Apps Iframe State
-        const activeAppId = ref("app-1");
+        // Teacher Apps Overview & Iframe State (Default null agar tampil halaman informasi dulu)
+        const selectedTeacherApp = ref(null);
         const iframeKey = ref(1);
+
+        // Custom Delete Confirmation Modal State
+        const deleteModal = reactive({
+          open: false,
+          type: "",
+          id: "",
+          label: ""
+        });
 
         // Admin Filters
         const adminAlumniSearch = ref("");
@@ -2112,10 +1870,6 @@ function getOrCreateSubFolder(parentFolder, folderName) {
           return feedbacks.value;
         });
 
-        const currentTeacherApp = computed(() => {
-          return teacherApps.value.find(a => a.id === activeAppId.value) || teacherApps.value[0] || null;
-        });
-
         // =========================================================
         // HELPER FUNCTIONS
         // =========================================================
@@ -2137,12 +1891,22 @@ function getOrCreateSubFolder(parentFolder, folderName) {
 
         const switchTab = (tab) => {
           activeTab.value = tab;
+          if (tab === "aplikasi") {
+            // Selalu tampilkan halaman informasi terlebih dahulu setiap kali tab Aplikasi Guru diklik
+            selectedTeacherApp.value = null;
+          }
           window.scrollTo({ top: 0, behavior: "smooth" });
         };
 
-        const selectTeacherApp = (app) => {
-          activeAppId.value = app.id;
+        const openTeacherApp = (app) => {
+          selectedTeacherApp.value = app;
           iframeKey.value++;
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        };
+
+        const backToAppOverview = () => {
+          selectedTeacherApp.value = null;
+          window.scrollTo({ top: 0, behavior: "smooth" });
         };
 
         const reloadIframe = () => {
@@ -2152,6 +1916,35 @@ function getOrCreateSubFolder(parentFolder, folderName) {
 
         const openLightbox = (item) => {
           lightboxItem.value = item;
+        };
+
+        // =========================================================
+        // CUSTOM DELETE CONFIRMATION HANDLER
+        // =========================================================
+        const confirmDelete = (type, id, label) => {
+          deleteModal.type = type;
+          deleteModal.id = id;
+          deleteModal.label = label || "Item terpilih";
+          deleteModal.open = true;
+        };
+
+        const executeConfirmedDelete = async () => {
+          const { type, id } = deleteModal;
+          deleteModal.open = false;
+
+          if (type === "guru") {
+            await deleteTeacher(id);
+          } else if (type === "alumni") {
+            await deleteAlumni(id);
+          } else if (type === "galeri") {
+            await deleteGallery(id);
+          } else if (type === "saran") {
+            await deleteFeedback(id);
+          } else if (type === "user") {
+            await deleteUser(id);
+          } else if (type === "aplikasi") {
+            await deleteTeacherApp(id);
+          }
         };
 
         // =========================================================
@@ -2180,8 +1973,9 @@ function getOrCreateSubFolder(parentFolder, folderName) {
             if (Array.isArray(data.users) && data.users.length > 0) users.value = data.users;
             if (Array.isArray(data.teacherApps) && data.teacherApps.length > 0) {
               teacherApps.value = data.teacherApps;
-              if (!teacherApps.value.some(a => a.id === activeAppId.value)) {
-                activeAppId.value = teacherApps.value[0].id;
+              if (selectedTeacherApp.value) {
+                const updated = teacherApps.value.find(a => a.id === selectedTeacherApp.value.id);
+                selectedTeacherApp.value = updated || null;
               }
             }
           } finally {
@@ -2768,6 +2562,7 @@ function getOrCreateSubFolder(parentFolder, folderName) {
               id: "app-" + Date.now(),
               name: "",
               url: "https://sdn2ringinarum.github.io/",
+              description: "",
               icon: "fa-solid fa-file-invoice"
             };
           }
@@ -2787,8 +2582,8 @@ function getOrCreateSubFolder(parentFolder, folderName) {
 
         const deleteTeacherApp = async (id) => {
           teacherApps.value = teacherApps.value.filter(a => a.id !== id);
-          if (activeAppId.value === id && teacherApps.value.length > 0) {
-            activeAppId.value = teacherApps.value[0].id;
+          if (selectedTeacherApp.value && selectedTeacherApp.value.id === id) {
+            selectedTeacherApp.value = null;
           }
           await saveAllData("Aplikasi guru telah dihapus.");
         };
@@ -2817,13 +2612,13 @@ function getOrCreateSubFolder(parentFolder, folderName) {
           toast, school, teachers, alumni, gallery, feedbacks, users, teacherApps, cloudConfig, cloudStatus,
           isAuthReady, currentUser, loginForm, showPassword, loginError,
           teacherFilter, publicAlumniSearch, publicAlumniYear, feedbackRoleFilter, feedbackForm,
-          activeAppId, iframeKey, adminAlumniSearch, adminAlumniYear, adminFeedbackFilter, adminSubTabs,
+          selectedTeacherApp, iframeKey, deleteModal, adminAlumniSearch, adminAlumniYear, adminFeedbackFilter, adminSubTabs,
           teacherModal, alumniModal, galleryModal, userModal, appModal,
           activeTeachersCount, retiredTeachersCount, filteredPublicTeachers,
           availableAlumniYears, filteredPublicAlumni, filteredAdminAlumni,
           approvedFeedbacks, pendingFeedbackCount, filteredApprovedFeedbacks, filteredAdminFeedbacks,
-          currentTeacherApp,
-          getInitials, formatDate, switchTab, selectTeacherApp, reloadIframe, openLightbox,
+          getInitials, formatDate, switchTab, openTeacherApp, backToAppOverview, reloadIframe, openLightbox,
+          confirmDelete, executeConfirmedDelete,
           handleLogin, handleLogout, submitPublicFeedback,
           saveAllData, forceSyncToCloud, saveCloudSettings, resetDefaultFirebase,
           handleLogoUpload, handleModalImageUpload,
