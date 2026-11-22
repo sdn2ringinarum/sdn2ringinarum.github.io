@@ -1435,8 +1435,7 @@ function doPost(e) {
     var rawBase64 = payload.base64 || "";
     var mimeType = (payload.mimeType || "").toLowerCase().trim();
     var originalName = payload.fileName || payload.filename || ("gambar_" + Date.now());
-    var parentSubName = (payload.parentFolder || "umum").trim();
-    var categoryName = (payload.category || "umum").toLowerCase().trim();
+    var categoryName = (payload.category || "logo").toLowerCase().trim();
 
     if (!rawBase64) throw new Error("Data gambar (base64) kosong.");
 
@@ -1464,9 +1463,9 @@ function doPost(e) {
     var cleanBaseName = originalName.replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9_-]/g, "_");
     var finalFileName = cleanBaseName + "_" + Date.now() + "." + allowedMimes[mimeType];
 
+    // Folder Utama: Foto_Website_SDN2Ringinarum -> Subfolder: logo | guru | alumni | galeri
     var rootFolder = TARGET_FOLDER_ID ? DriveApp.getFolderById(TARGET_FOLDER_ID) : getOrCreateSubFolder(DriveApp.getRootFolder(), "Foto_Website_SDN2Ringinarum");
-    var umumFolder = getOrCreateSubFolder(rootFolder, parentSubName);
-    var targetCategoryFolder = getOrCreateSubFolder(umumFolder, categoryName);
+    var targetCategoryFolder = getOrCreateSubFolder(rootFolder, categoryName);
 
     var decodedBytes = Utilities.base64Decode(rawBase64);
     var blob = Utilities.newBlob(decodedBytes, mimeType, finalFileName);
@@ -1477,7 +1476,7 @@ function doPost(e) {
     return ContentService.createTextOutput(JSON.stringify({
       status: "success",
       fileId: fileId,
-      folderPath: "Foto_Website_SDN2Ringinarum/" + parentSubName + "/" + categoryName,
+      folderPath: "Foto_Website_SDN2Ringinarum/" + categoryName,
       url: "https://lh3.googleusercontent.com/d/" + fileId
     })).setMimeType(ContentService.MimeType.JSON);
   } catch (err) {
@@ -2584,12 +2583,12 @@ function getOrCreateSubFolder(parentFolder, folderName) {
           });
         };
 
-        const uploadImageFile = async (file, category = "umum") => {
+        const uploadImageFile = async (file, category = "logo") => {
           uploadingFile.value = true;
           try {
             const { dataUrl, mimeType } = await processImageForUpload(file, category);
 
-            // Jika URL Google Apps Script diisi, unggah ke Google Drive ke folder umum/{category}
+            // Jika URL Google Apps Script diisi, unggah ke Google Drive ke Foto_Website_SDN2Ringinarum/{category}
             if (cloudConfig.gasUrl && cloudConfig.gasUrl.trim().startsWith("http")) {
               const res = await fetch(cloudConfig.gasUrl.trim(), {
                 method: "POST",
@@ -2601,7 +2600,6 @@ function getOrCreateSubFolder(parentFolder, folderName) {
                   mimeType: mimeType,
                   fileName: file.name,
                   filename: file.name,
-                  parentFolder: "umum",
                   category: category
                 })
               });
@@ -2615,7 +2613,7 @@ function getOrCreateSubFolder(parentFolder, folderName) {
               }
 
               if (result.status === "success" && result.url) {
-                notify("Upload Google Drive Berhasil", `Gambar tersimpan di folder umum/${category}.`, "success");
+                notify("Upload Google Drive Berhasil", `Gambar tersimpan di Foto_Website_SDN2Ringinarum/${category}.`, "success");
                 return result.url;
               } else {
                 throw new Error(result.message || "Gagal mengunggah ke Google Drive.");
