@@ -51,7 +51,7 @@
   <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 
   <style>
-    [v-cloak] { display: none; }
+    [v-cloak] { display: none !important; }
     body {
       background-color: #f8fafc;
       color: #1e293b;
@@ -770,10 +770,10 @@
       <!-- =========================================================
            TAB 4: PENGATURAN (DILINDUNGI LAYAR LOGIN ADMIN)
            ========================================================= -->
-      <div v-if="activeTab === 'pengaturan'" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div v-if="activeTab === 'pengaturan'" v-cloak class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         <!-- LAYAR LOGIN ADMIN -->
-        <div v-if="!currentUser" class="max-w-md mx-auto my-8">
+        <div v-if="isAuthReady && !currentUser" v-cloak class="max-w-md mx-auto my-8">
           <div class="bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden">
             <div class="bg-slate-900 text-white p-7 text-center">
               <div class="w-14 h-14 rounded-2xl bg-amber-400 text-slate-950 flex items-center justify-center text-2xl mx-auto mb-3 shadow-lg">
@@ -1304,31 +1304,69 @@
               </div>
               <ol class="text-xs text-slate-300 list-decimal list-inside space-y-1">
                 <li>Buka <strong>script.google.com</strong> lalu buat <strong>Project Baru</strong>.</li>
-                <li>Hapus kode bawaan dan tempel kode <code>doPost(e)</code> di bawah ini.</li>
+                <li>Hapus kode bawaan dan tempel kode <code>doPost(e)</code> di bawah ini (mendukung PNG transparan, JPG, JPEG, WEBP, GIF & otomatis memisahkan folder ke <code>Foto_Website_SDN2Ringinarum / umum / (logo, guru, alumni, galeri)</code>).</li>
                 <li>Klik <strong>Terapkan (Deploy) &rarr; Deployment Baru &rarr; Jenis: Aplikasi Web</strong>.</li>
                 <li>Atur <em>Yang memiliki akses</em> menjadi <strong>Siapa saja (Anyone)</strong>, lalu salin URL Web App ke kolom di bawah.</li>
               </ol>
-              <pre ref="gasCodeBlock" class="bg-slate-950 p-4 rounded-xl text-[11px] font-mono text-emerald-300 overflow-x-auto custom-scrollbar">function doPost(e) {
+              <pre ref="gasCodeBlock" class="bg-slate-950 p-4 rounded-xl text-[11px] font-mono text-emerald-300 overflow-x-auto custom-scrollbar">const TARGET_FOLDER_ID = "";
+
+function doGet(e) {
+  return ContentService.createTextOutput(JSON.stringify({
+    status: "ok",
+    message: "Endpoint Upload Gambar (PNG, JPG, JPEG, WEBP, GIF) SD N 2 Ringinarum aktif."
+  })).setMimeType(ContentService.MimeType.JSON);
+}
+
+function doPost(e) {
   try {
-    var data = JSON.parse(e.postData.contents);
-    var folderName = "SDN2Ringinarum_Assets";
-    var folders = DriveApp.getFoldersByName(folderName);
-    var folder = folders.hasNext() ? folders.next() : DriveApp.createFolder(folderName);
+    var payload = JSON.parse(e.postData.contents);
+    var rawBase64 = payload.base64 || "";
+    var mimeType = (payload.mimeType || "").toLowerCase().trim();
+    var originalName = payload.fileName || payload.filename || ("gambar_" + Date.now());
+    var parentSubName = (payload.parentFolder || "umum").trim();
+    var categoryName = (payload.category || "umum").toLowerCase().trim();
 
-    var base64Data = data.base64.split(",")[1] || data.base64;
-    var decoded = Utilities.base64Decode(base64Data);
-    var blob = Utilities.newBlob(decoded, data.mimeType || "image/jpeg", data.fileName || ("img_" + Date.now() + ".jpg"));
+    if (!rawBase64) throw new Error("Data gambar (base64) kosong.");
 
-    var file = folder.createFile(blob);
+    if (rawBase64.indexOf(",") !== -1) {
+      var parts = rawBase64.split(",");
+      var header = parts[0];
+      rawBase64 = parts[1];
+      var mimeMatch = header.match(/data:(image\/[a-zA-Z0-9.+-]+);base64/i);
+      if (mimeMatch &amp;&amp; mimeMatch[1]) mimeType = mimeMatch[1].toLowerCase();
+    }
+
+    var extMatch = originalName.match(/\.([a-zA-Z0-9]+)$/);
+    var fileExt = extMatch ? extMatch[1].toLowerCase() : "";
+    if (!mimeType || mimeType === "application/octet-stream") {
+      if (fileExt === "png") mimeType = "image/png";
+      else if (fileExt === "webp") mimeType = "image/webp";
+      else if (fileExt === "gif") mimeType = "image/gif";
+      else mimeType = "image/jpeg";
+    }
+    if (mimeType === "image/jpg") mimeType = "image/jpeg";
+
+    var allowedMimes = { "image/png": "png", "image/jpeg": "jpg", "image/webp": "webp", "image/gif": "gif" };
+    if (!allowedMimes[mimeType]) throw new Error("Format tidak didukung: " + mimeType);
+
+    var cleanBaseName = originalName.replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9_-]/g, "_");
+    var finalFileName = cleanBaseName + "_" + Date.now() + "." + allowedMimes[mimeType];
+
+    var rootFolder = TARGET_FOLDER_ID ? DriveApp.getFolderById(TARGET_FOLDER_ID) : getOrCreateSubFolder(DriveApp.getRootFolder(), "Foto_Website_SDN2Ringinarum");
+    var umumFolder = getOrCreateSubFolder(rootFolder, parentSubName);
+    var targetCategoryFolder = getOrCreateSubFolder(umumFolder, categoryName);
+
+    var decodedBytes = Utilities.base64Decode(rawBase64);
+    var blob = Utilities.newBlob(decodedBytes, mimeType, finalFileName);
+    var file = targetCategoryFolder.createFile(blob);
     file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
 
     var fileId = file.getId();
-    var directUrl = "https://lh3.googleusercontent.com/d/" + fileId;
-
     return ContentService.createTextOutput(JSON.stringify({
       status: "success",
-      url: directUrl,
-      id: fileId
+      fileId: fileId,
+      folderPath: "Foto_Website_SDN2Ringinarum/" + parentSubName + "/" + categoryName,
+      url: "https://lh3.googleusercontent.com/d/" + fileId
     })).setMimeType(ContentService.MimeType.JSON);
   } catch (err) {
     return ContentService.createTextOutput(JSON.stringify({
@@ -1336,6 +1374,11 @@
       message: err.toString()
     })).setMimeType(ContentService.MimeType.JSON);
   }
+}
+
+function getOrCreateSubFolder(parentFolder, folderName) {
+  var folders = parentFolder.getFoldersByName(folderName);
+  return folders.hasNext() ? folders.next() : parentFolder.createFolder(folderName);
 }</pre>
             </div>
 
@@ -1524,7 +1567,7 @@
             <div class="flex items-center gap-3">
               <label class="cursor-pointer px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-700">
                 <i class="fa-solid fa-camera mr-1"></i> Pilih Foto
-                <input type="file" accept="image/*" @change="e => handleModalImageUpload(e, teacherModal.data, 'photoUrl')" class="hidden" />
+                <input type="file" accept="image/png,image/jpeg,image/jpg,image/webp,image/gif" @change="e => handleModalImageUpload(e, teacherModal.data, 'photoUrl', 'guru')" class="hidden" />
               </label>
               <input v-model.trim="teacherModal.data.photoUrl" type="text" placeholder="Atau tempel URL foto..." class="flex-1 px-3 py-2 rounded-xl border border-slate-300 text-xs" />
             </div>
@@ -1574,7 +1617,7 @@
             <div class="flex items-center gap-3">
               <label class="cursor-pointer px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-700">
                 <i class="fa-solid fa-camera mr-1"></i> Pilih Foto
-                <input type="file" accept="image/*" @change="e => handleModalImageUpload(e, alumniModal.data, 'photoUrl')" class="hidden" />
+                <input type="file" accept="image/png,image/jpeg,image/jpg,image/webp,image/gif" @change="e => handleModalImageUpload(e, alumniModal.data, 'photoUrl', 'alumni')" class="hidden" />
               </label>
               <input v-model.trim="alumniModal.data.photoUrl" type="text" placeholder="Atau URL foto..." class="flex-1 px-3 py-2 rounded-xl border border-slate-300 text-xs" />
             </div>
@@ -1614,7 +1657,7 @@
             <div class="flex items-center gap-3">
               <label class="cursor-pointer px-3.5 py-2 rounded-xl bg-blue-50 text-blue-800 border border-blue-200 text-xs font-bold shrink-0">
                 <i class="fa-solid fa-upload mr-1"></i> Unggah Foto
-                <input type="file" accept="image/*" @change="e => handleModalImageUpload(e, galleryModal.data, 'imageUrl')" class="hidden" />
+                <input type="file" accept="image/png,image/jpeg,image/jpg,image/webp,image/gif" @change="e => handleModalImageUpload(e, galleryModal.data, 'imageUrl', 'galeri')" class="hidden" />
               </label>
               <input v-model.trim="galleryModal.data.imageUrl" type="text" required placeholder="https://..." class="flex-1 px-3 py-2 rounded-xl border border-slate-300 text-xs" />
             </div>
@@ -1959,8 +2002,18 @@
         let unsubscribeSnapshot = null;
         let isApplyingRemote = false;
 
+        // Synchronous Session Check (Mencegah FOUC/Kedip Login Admin saat reload)
+        let initialUser = null;
+        try {
+          const savedSession = sessionStorage.getItem(SESSION_KEY) || localStorage.getItem(SESSION_KEY);
+          if (savedSession) initialUser = JSON.parse(savedSession);
+        } catch (e) {
+          console.warn("Session parse warning:", e);
+        }
+
         // Auth State
-        const currentUser = ref(null);
+        const isAuthReady = ref(true);
+        const currentUser = ref(initialUser);
         const loginForm = reactive({ email: "", password: "" });
         const showPassword = ref(false);
         const loginError = ref("");
@@ -2159,7 +2212,7 @@
                 if (parsed.cloudConfig.firebase) Object.assign(cloudConfig.firebase, parsed.cloudConfig.firebase);
               }
             }
-            const savedSession = sessionStorage.getItem(SESSION_KEY);
+            const savedSession = sessionStorage.getItem(SESSION_KEY) || localStorage.getItem(SESSION_KEY);
             if (savedSession) {
               currentUser.value = JSON.parse(savedSession);
             }
@@ -2249,9 +2302,30 @@
 
         // =========================================================
         // IMAGE UPLOAD (GOOGLE DRIVE VIA GAS + FALLBACK COMPRESSOR)
+        // Mendukung PNG (transparan), JPG, JPEG, WEBP, GIF & Subfolder umum/{category}
         // =========================================================
-        const compressImageToBase64 = (file, maxWidth = 800, quality = 0.78) => {
+        const processImageForUpload = (file, category = "umum") => {
           return new Promise((resolve, reject) => {
+            const rawType = (file.type || "").toLowerCase();
+            const extMatch = (file.name || "").match(/\.([a-zA-Z0-9]+)$/);
+            const ext = extMatch ? extMatch[1].toLowerCase() : "";
+
+            const isPng = rawType === "image/png" || ext === "png";
+            const isGif = rawType === "image/gif" || ext === "gif";
+            const isWebp = rawType === "image/webp" || ext === "webp";
+
+            // GIF animasi dibaca langsung tanpa canvas agar animasi tidak hilang
+            if (isGif) {
+              const directReader = new FileReader();
+              directReader.onload = (ev) => resolve({ dataUrl: ev.target.result, mimeType: "image/gif" });
+              directReader.onerror = () => reject(new Error("Gagal membaca file GIF."));
+              directReader.readAsDataURL(file);
+              return;
+            }
+
+            const outputMime = isPng ? "image/png" : isWebp ? "image/webp" : "image/jpeg";
+            const maxDim = category === "logo" ? 600 : 1280;
+
             const reader = new FileReader();
             reader.onload = (event) => {
               const img = new Image();
@@ -2259,54 +2333,79 @@
                 const canvas = document.createElement("canvas");
                 let width = img.width;
                 let height = img.height;
-                if (width > maxWidth) {
-                  height = Math.round((height * maxWidth) / width);
-                  width = maxWidth;
+                if (width > maxDim || height > maxDim) {
+                  if (width > height) {
+                    height = Math.round((height * maxDim) / width);
+                    width = maxDim;
+                  } else {
+                    width = Math.round((width * maxDim) / height);
+                    height = maxDim;
+                  }
                 }
                 canvas.width = width;
                 canvas.height = height;
                 const ctx = canvas.getContext("2d");
+                if (isPng || isWebp) {
+                  ctx.clearRect(0, 0, width, height);
+                }
                 ctx.drawImage(img, 0, 0, width, height);
-                resolve(canvas.toDataURL("image/jpeg", quality));
+                const dataUrl = isPng
+                  ? canvas.toDataURL("image/png")
+                  : canvas.toDataURL(outputMime, 0.85);
+                resolve({ dataUrl, mimeType: outputMime });
               };
-              img.onerror = reject;
+              img.onerror = () => reject(new Error("File gambar rusak atau format tidak dikenali browser."));
               img.src = event.target.result;
             };
-            reader.onerror = reject;
+            reader.onerror = () => reject(new Error("Gagal membaca file dari perangkat."));
             reader.readAsDataURL(file);
           });
         };
 
-        const uploadImageFile = async (file) => {
+        const uploadImageFile = async (file, category = "umum") => {
           uploadingFile.value = true;
           try {
-            const compressedDataUrl = await compressImageToBase64(file, 900, 0.8);
+            const { dataUrl, mimeType } = await processImageForUpload(file, category);
 
-            // Jika URL Google Apps Script diisi, unggah ke Google Drive
-            if (cloudConfig.gasUrl && cloudConfig.gasUrl.startsWith("http")) {
-              const res = await fetch(cloudConfig.gasUrl, {
+            // Jika URL Google Apps Script diisi, unggah ke Google Drive ke folder umum/{category}
+            if (cloudConfig.gasUrl && cloudConfig.gasUrl.trim().startsWith("http")) {
+              const res = await fetch(cloudConfig.gasUrl.trim(), {
                 method: "POST",
+                headers: {
+                  "Content-Type": "text/plain;charset=utf-8"
+                },
                 body: JSON.stringify({
-                  base64: compressedDataUrl,
-                  mimeType: "image/jpeg",
-                  fileName: `${Date.now()}_${file.name.replace(/\s+/g, "_")}`
+                  base64: dataUrl,
+                  mimeType: mimeType,
+                  fileName: file.name,
+                  filename: file.name,
+                  parentFolder: "umum",
+                  category: category
                 })
               });
-              const result = await res.json();
+
+              const rawText = await res.text();
+              let result;
+              try {
+                result = JSON.parse(rawText);
+              } catch {
+                throw new Error("Respon server Google Apps Script tidak valid. Pastikan akses diatur ke 'Siapa saja (Anyone)'.");
+              }
+
               if (result.status === "success" && result.url) {
-                notify("Upload Google Drive Berhasil", "Gambar tersimpan ke Google Drive.", "success");
+                notify("Upload Google Drive Berhasil", `Gambar tersimpan di folder umum/${category}.`, "success");
                 return result.url;
               } else {
-                throw new Error(result.message || "Gagal mengunggah ke Google Drive");
+                throw new Error(result.message || "Gagal mengunggah ke Google Drive.");
               }
             }
 
             // Fallback otomatis: simpan Data URL terkompresi agar langsung tampil
             notify("Gambar Siap", "Gambar berhasil diproses dan siap disimpan.", "success");
-            return compressedDataUrl;
+            return dataUrl;
           } catch (err) {
             console.error("Upload error:", err);
-            notify("Gagal Unggah", "Terjadi kendala saat memproses gambar. Gunakan URL gambar alternatif.", "error");
+            notify("Gagal Unggah", err.message || "Terjadi kendala saat memproses gambar.", "error");
             return "";
           } finally {
             uploadingFile.value = false;
@@ -2316,7 +2415,7 @@
         const handleLogoUpload = async (event) => {
           const file = event.target.files?.[0];
           if (!file) return;
-          const url = await uploadImageFile(file);
+          const url = await uploadImageFile(file, "logo");
           if (url) {
             school.logoUrl = url;
             await saveAllData("Logo sekolah diperbarui!");
@@ -2324,10 +2423,10 @@
           event.target.value = "";
         };
 
-        const handleModalImageUpload = async (event, targetObj, fieldKey) => {
+        const handleModalImageUpload = async (event, targetObj, fieldKey, category = "umum") => {
           const file = event.target.files?.[0];
           if (!file) return;
-          const url = await uploadImageFile(file);
+          const url = await uploadImageFile(file, category);
           if (url) {
             targetObj[fieldKey] = url;
           }
@@ -2353,6 +2452,7 @@
           }
           currentUser.value = { id: matched.id, name: matched.name, email: matched.email, role: matched.role };
           sessionStorage.setItem(SESSION_KEY, JSON.stringify(currentUser.value));
+          localStorage.setItem(SESSION_KEY, JSON.stringify(currentUser.value));
           loginForm.password = "";
           notify("Login Berhasil", `Selamat datang kembali, ${matched.name}!`, "success");
         };
@@ -2360,6 +2460,7 @@
         const handleLogout = () => {
           currentUser.value = null;
           sessionStorage.removeItem(SESSION_KEY);
+          localStorage.removeItem(SESSION_KEY);
           notify("Keluar", "Anda telah keluar dari panel administrator.", "info");
         };
 
@@ -2714,7 +2815,7 @@
         return {
           activeTab, mobileMenuOpen, adminTab, showGasGuide, uploadingFile, isSyncing, lightboxItem, gasCodeBlock,
           toast, school, teachers, alumni, gallery, feedbacks, users, teacherApps, cloudConfig, cloudStatus,
-          currentUser, loginForm, showPassword, loginError,
+          isAuthReady, currentUser, loginForm, showPassword, loginError,
           teacherFilter, publicAlumniSearch, publicAlumniYear, feedbackRoleFilter, feedbackForm,
           activeAppId, iframeKey, adminAlumniSearch, adminAlumniYear, adminFeedbackFilter, adminSubTabs,
           teacherModal, alumniModal, galleryModal, userModal, appModal,
