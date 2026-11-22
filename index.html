@@ -1409,12 +1409,18 @@
                 </button>
               </div>
               <ol class="text-xs text-slate-300 list-decimal list-inside space-y-1">
-                <li>Buka <strong>script.google.com</strong> lalu buat <strong>Project Baru</strong>.</li>
-                <li>Hapus kode bawaan dan tempel kode <code>doPost(e)</code> di bawah ini (mendukung PNG transparan, JPG, JPEG, WEBP, GIF & otomatis memisahkan folder ke <code>Foto_Website_SDN2Ringinarum / umum / (logo, guru, alumni, galeri)</code>).</li>
-                <li>Klik <strong>Terapkan (Deploy) &rarr; Deployment Baru &rarr; Jenis: Aplikasi Web</strong>.</li>
-                <li>Atur <em>Yang memiliki akses</em> menjadi <strong>Siapa saja (Anyone)</strong>, lalu salin URL Web App ke kolom di bawah.</li>
+                <li>Buka <strong>script.google.com</strong> lalu buat <strong>Project Baru</strong> dan tempel kode di bawah ini.</li>
+                <li>Pilih fungsi <strong><code>authorizeDrive</code></strong> di toolbar atas editor, lalu klik <strong>Jalankan (Run)</strong> &rarr; <strong>Tinjau Izin</strong> &rarr; <strong>Lanjutan &rarr; Izinkan</strong> agar <code>DriveApp</code> mendapat akses Google Drive.</li>
+                <li>Klik <strong>Terapkan (Deploy) &rarr; Deployment Baru &rarr; Aplikasi Web</strong>.</li>
+                <li>Wajib atur <em>Jalankan sebagai</em> = <strong>Saya (Me)</strong> dan <em>Yang memiliki akses</em> = <strong>Siapa saja (Anyone)</strong>, lalu salin URL Web App.</li>
               </ol>
               <pre ref="gasCodeBlock" class="bg-slate-950 p-4 rounded-xl text-[11px] font-mono text-emerald-300 overflow-x-auto custom-scrollbar">const TARGET_FOLDER_ID = "";
+
+// Jalankan fungsi ini 1x di editor Apps Script untuk memberi izin DriveApp
+function authorizeDrive() {
+  var root = DriveApp.getRootFolder();
+  Logger.log("Izin DriveApp aktif: " + root.getName());
+}
 
 function doGet(e) {
   return ContentService.createTextOutput(JSON.stringify({
