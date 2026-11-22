@@ -58,8 +58,8 @@
       background: rgba(15, 23, 42, 0.94);
       backdrop-filter: blur(12px);
     }
-    .tab-panel {
-      animation: fadeSlide 0.25s ease-out;
+    .tab-panel-animate {
+      animation: fadeSlide 0.22s ease-out;
     }
     @keyframes fadeSlide {
       from { opacity: 0; transform: translateY(6px); }
@@ -281,9 +281,19 @@
     let db = null;
     let unsubCloud = null;
     let isRemoteSyncing = false;
+    let lastDataHash = JSON.stringify({
+      school: state.school,
+      teachers: state.teachers,
+      alumni: state.alumni,
+      gallery: state.gallery,
+      feedbacks: state.feedbacks,
+      users: state.users,
+      teacherApps: state.teacherApps
+    });
 
     const ui = {
       tab: "beranda",
+      animateNext: false,
       adminSub: "profil",
       user: initialAuth,
       cloudConnected: false,
@@ -500,17 +510,29 @@
           isRemoteSyncing = false;
         }
         unsubCloud = window.__fbOnSnapshot(ref, (s) => {
+          const prevConn = ui.cloudConnected;
           ui.cloudConnected = true;
           if (s.exists() && !isRemoteSyncing) {
             const d = s.data();
-            if (d.school) state.school = { ...state.school, ...d.school };
-            if (Array.isArray(d.teachers)) state.teachers = d.teachers;
-            if (Array.isArray(d.alumni)) state.alumni = d.alumni;
-            if (Array.isArray(d.gallery)) state.gallery = d.gallery;
-            if (Array.isArray(d.feedbacks)) state.feedbacks = d.feedbacks;
-            if (Array.isArray(d.users) && d.users.length) state.users = d.users;
-            if (Array.isArray(d.teacherApps) && d.teacherApps.length) state.teacherApps = d.teacherApps;
-            localStorage.setItem(LS_DATA_KEY, JSON.stringify(state));
+            const nextState = {
+              school: d.school ? { ...state.school, ...d.school } : state.school,
+              teachers: Array.isArray(d.teachers) ? d.teachers : state.teachers,
+              alumni: Array.isArray(d.alumni) ? d.alumni : state.alumni,
+              gallery: Array.isArray(d.gallery) ? d.gallery : state.gallery,
+              feedbacks: Array.isArray(d.feedbacks) ? d.feedbacks : state.feedbacks,
+              users: Array.isArray(d.users) && d.users.length ? d.users : state.users,
+              teacherApps: Array.isArray(d.teacherApps) && d.teacherApps.length ? d.teacherApps : state.teacherApps
+            };
+            const nextHash = JSON.stringify(nextState);
+            if (nextHash !== lastDataHash) {
+              lastDataHash = nextHash;
+              Object.assign(state, nextState);
+              localStorage.setItem(LS_DATA_KEY, JSON.stringify(state));
+              render();
+              return;
+            }
+          }
+          if (!prevConn && ui.tab === "pengaturan") {
             render();
           }
         });
@@ -519,7 +541,7 @@
         console.warn("Firebase offline mode:", e);
         ui.cloudConnected = false;
       }
-      render();
+      if (ui.tab === "pengaturan") render();
     };
     window.__startCloudSync = connectFirebase;
 
@@ -604,7 +626,7 @@
       const approvedFb = state.feedbacks.filter(f => f.approved);
 
       return `
-        <div class="tab-panel space-y-14 pb-16">
+        <div class="${ui.animateNext ? 'tab-panel-animate' : ''} space-y-14 pb-16">
           <!-- HERO SECTION -->
           <section class="mesh-navy text-white relative overflow-hidden">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-20">
@@ -873,7 +895,7 @@
       // Tampilan Halaman Informasi Terlebih Dahulu (Tanpa URL Mentah)
       if (!selected) {
         return `
-          <div class="tab-panel max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+          <div class="${ui.animateNext ? 'tab-panel-animate' : ''} max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
             <div class="mesh-navy text-white rounded-3xl p-8 md:p-10 shadow-xl">
               <div class="max-w-3xl space-y-4">
                 <span class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-amber-400 text-slate-950">
@@ -945,7 +967,7 @@
 
       // Tampilan Iframe Aplikasi Terpilih (Tanpa URL Mentah)
       return `
-        <div class="tab-panel max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="${ui.animateNext ? 'tab-panel-animate' : ''} max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div class="bg-white rounded-3xl shadow-md border border-slate-200 overflow-hidden">
             <div class="bg-slate-900 text-white p-4 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
               <div class="flex flex-wrap items-center gap-2">
@@ -978,7 +1000,7 @@
     const renderSaran = () => {
       const approved = state.feedbacks.filter(f => f.approved && (!ui.feedbackRole || f.role === ui.feedbackRole));
       return `
-        <div class="tab-panel max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div class="${ui.animateNext ? 'tab-panel-animate' : ''} max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
           <div class="mb-8">
             <span class="text-xs font-bold uppercase tracking-widest text-blue-800 bg-blue-100 px-3 py-1 rounded-full">Partisipasi Publik</span>
             <h1 class="font-heading text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2">Kotak Saran & Kesan</h1>
@@ -1058,7 +1080,7 @@
     const renderPengaturan = () => {
       if (!ui.user) {
         return `
-          <div class="tab-panel max-w-md mx-auto my-12 px-4">
+          <div class="${ui.animateNext ? 'tab-panel-animate' : ''} max-w-md mx-auto my-12 px-4">
             <div class="bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden">
               <div class="bg-slate-900 text-white p-7 text-center">
                 <div class="w-14 h-14 rounded-2xl bg-amber-400 text-slate-950 flex items-center justify-center text-2xl mx-auto mb-3 shadow-lg">
@@ -1475,7 +1497,7 @@ function getOrCreateSubFolder(parent, name) {
                 <h3 class="font-bold text-sm text-slate-900"><i class="fa-brands fa-google-drive text-emerald-600 mr-1.5"></i> Google Apps Script Web App URL (Wajib untuk Upload Foto)</h3>
                 <p class="text-xs text-slate-500">Semua unggahan logo, guru, alumni, dan galeri disimpan langsung ke Google Drive folder <code>Foto_Website_SDN2Ringinarum</code>.</p>
                 <div class="flex gap-2">
-                  <input id="gas-url-input" name="gasUrl" value="${esc(state.cloud.gasUrl)}" type="url" placeholder="https://script.google.com/macros/s/AKfycbyybhNNxKMVZPFhu7DagVD0oI2TaRYoFH5HltW6oRi8KVVfj5--hn_8KtcLdApH6S3y/exec" class="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs font-mono bg-white" />
+                  <input id="gas-url-input" name="gasUrl" value="${esc(state.cloud.gasUrl)}" type="url" placeholder="https://script.google.com/macros/s/.../exec" class="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs font-mono bg-white" />
                   <button type="button" onclick="App.testGasConnection()" class="px-3.5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shrink-0">Uji Koneksi</button>
                 </div>
               </div>
@@ -1501,7 +1523,7 @@ function getOrCreateSubFolder(parent, name) {
       }
 
       return `
-        <div class="tab-panel max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+        <div class="${ui.animateNext ? 'tab-panel-animate' : ''} max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
           <div class="bg-slate-900 text-white rounded-3xl p-6 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div class="flex items-center gap-4">
               <div class="w-12 h-12 rounded-2xl bg-amber-400 text-slate-950 flex items-center justify-center text-xl font-bold shrink-0"><i class="fa-solid fa-sliders"></i></div>
@@ -1542,6 +1564,7 @@ function getOrCreateSubFolder(parent, name) {
       else if (ui.tab === "aplikasi") root.innerHTML = renderAplikasi();
       else if (ui.tab === "saran") root.innerHTML = renderSaran();
       else if (ui.tab === "pengaturan") root.innerHTML = renderPengaturan();
+      ui.animateNext = false;
     };
 
     // =========================================================
@@ -1562,6 +1585,7 @@ function getOrCreateSubFolder(parent, name) {
     window.App = {
       go(tab) {
         ui.tab = tab;
+        ui.animateNext = true;
         if (tab === "aplikasi") ui.selectedAppId = null;
         render();
         window.scrollTo({ top: 0, behavior: "smooth" });
