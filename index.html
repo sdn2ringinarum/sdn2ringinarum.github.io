@@ -532,39 +532,35 @@
       const { dataUrl, mimeType } = await prepareImage(file, category);
       const gas = (state.cloud.gasUrl || "").trim();
 
-      if (gas && gas.startsWith("http")) {
-        try {
-          // Menggunakan URLSearchParams (form-urlencoded) agar tidak terkena CORS preflight & lebih stabil di GAS
-          const formBody = new URLSearchParams();
-          formBody.append("base64", dataUrl);
-          formBody.append("mimeType", mimeType);
-          formBody.append("fileName", file.name);
-          formBody.append("category", category);
-
-          const res = await fetch(gas, {
-            method: "POST",
-            body: formBody
-          });
-          const text = await res.text();
-          const json = JSON.parse(text);
-          if (json.status === "success" && json.url) {
-            toast("Tersimpan di Google Drive", `Folder: Foto_Website_SDN2Ringinarum/${category}`, "success");
-            return json.url;
-          } else {
-            // Jika Google Drive menolak izin, otomatis fallback ke Cloud Firestore Optimal agar tidak gagal!
-            console.warn("GAS Drive warning:", json.message);
-            toast("Dialihkan ke Cloud Otomatis", `Google Drive: ${json.message || "Akses terbatas"}. Gambar tetap disimpan otomatis di Cloud Website.`, "info");
-            return dataUrl;
-          }
-        } catch (err) {
-          console.warn("GAS fetch fallback:", err);
-          toast("Mode Simpan Otomatis", "Gambar berhasil dioptimalkan dan disimpan langsung ke Cloud Website.", "info");
-          return dataUrl;
-        }
+      if (!gas || !gas.startsWith("http")) {
+        throw new Error("URL Web App Google Apps Script belum diisi. Silakan isi di menu Pengaturan > 8. Integrasi Cloud.");
       }
 
-      toast("Gambar Berhasil Diproses", "Gambar siap disimpan ke database website.", "success");
-      return dataUrl;
+      const formBody = new URLSearchParams();
+      formBody.append("base64", dataUrl);
+      formBody.append("mimeType", mimeType);
+      formBody.append("fileName", file.name);
+      formBody.append("category", category);
+
+      const res = await fetch(gas, {
+        method: "POST",
+        body: formBody
+      });
+
+      const text = await res.text();
+      let json = null;
+      try {
+        json = JSON.parse(text);
+      } catch {
+        throw new Error("Respon server Google Apps Script tidak valid. Pastikan Web App di-deploy dengan akses 'Siapa saja (Anyone)'.");
+      }
+
+      if (json.status === "success" && json.url) {
+        toast("Tersimpan di Google Drive", `Folder: Foto_Website_SDN2Ringinarum/${category}`, "success");
+        return json.url;
+      }
+
+      throw new Error(json.message || "Gagal menyimpan gambar ke Google Drive.");
     };
 
     // =========================================================
@@ -1393,16 +1389,19 @@
             ${ui.showGasGuide ? `
               <div class="bg-slate-900 text-slate-100 rounded-2xl p-6 space-y-3 border border-slate-700">
                 <div class="flex items-center justify-between">
-                  <h3 class="font-heading font-bold text-sm text-amber-400">Kode Google Apps Script (Code.gs) - Versi Form & Drive Otomatis</h3>
+                  <h3 class="font-heading font-bold text-sm text-amber-400">Kode Google Apps Script (Code.gs) - Wajib Simpan ke Google Drive</h3>
                   <button type="button" onclick="App.copyGas()" class="px-3 py-1.5 rounded-lg bg-blue-700 text-white text-xs font-bold">Salin Kode</button>
                 </div>
                 <pre id="gas-snippet" class="bg-slate-950 p-4 rounded-xl text-[11px] font-mono text-emerald-300 overflow-x-auto">function authorizeDrive() {
   var folder = getOrCreateSubFolder(DriveApp.getRootFolder(), "Foto_Website_SDN2Ringinarum");
-  Logger.log("Izin aktif: " + folder.getName());
+  var testFile = folder.createFile(Utilities.newBlob("OK", "text/plain", "_cek_izin.txt"));
+  testFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+  testFile.setTrashed(true);
+  Logger.log("Izin penuh Google Drive aktif!");
 }
 
 function doGet(e) {
-  return ContentService.createTextOutput(JSON.stringify({ status: "ok" })).setMimeType(ContentService.MimeType.JSON);
+  return ContentService.createTextOutput(JSON.stringify({ status: "ok", message: "Google Drive Storage Aktif" })).setMimeType(ContentService.MimeType.JSON);
 }
 
 function doPost(e) {
@@ -1415,6 +1414,10 @@ function doPost(e) {
     var mimeType = (p.mimeType || "image/jpeg").toLowerCase();
     var fileName = p.fileName || ("foto_" + Date.now());
     var category = (p.category || "logo").toLowerCase();
+    var allowedCat = ["logo", "guru", "alumni", "galeri"];
+    if (allowedCat.indexOf(category) === -1) category = "galeri";
+
+    if (!raw) throw new Error("Data gambar kosong.");
 
     if (raw.indexOf(",") !== -1) {
       var parts = raw.split(",");
@@ -1431,10 +1434,16 @@ function doPost(e) {
     var sub = getOrCreateSubFolder(root, category);
     var blob = Utilities.newBlob(Utilities.base64Decode(raw), mimeType, cleanName);
     var file = sub.createFile(blob);
-    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+
+    try {
+      file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    } catch (shareErr) {
+      // Tetap lanjut jika kebijakan domain membatasi setSharing
+    }
 
     return ContentService.createTextOutput(JSON.stringify({
       status: "success",
+      fileId: file.getId(),
       url: "https://lh3.googleusercontent.com/d/" + file.getId()
     })).setMimeType(ContentService.MimeType.JSON);
   } catch (err) {
@@ -1454,9 +1463,12 @@ function getOrCreateSubFolder(parent, name) {
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
-                <h3 class="font-bold text-sm text-slate-900"><i class="fa-brands fa-google-drive text-emerald-600 mr-1.5"></i> Google Apps Script Web App URL</h3>
-                <p class="text-xs text-slate-500">Opsional: Jika dikosongkan atau akun Google Drive membatasi akses publik, foto otomatis tersimpan di Cloud Firestore.</p>
-                <input name="gasUrl" value="${esc(state.cloud.gasUrl)}" type="url" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs font-mono bg-white" />
+                <h3 class="font-bold text-sm text-slate-900"><i class="fa-brands fa-google-drive text-emerald-600 mr-1.5"></i> Google Apps Script Web App URL (Wajib untuk Upload Foto)</h3>
+                <p class="text-xs text-slate-500">Semua unggahan logo, guru, alumni, dan galeri disimpan langsung ke Google Drive folder <code>Foto_Website_SDN2Ringinarum</code>.</p>
+                <div class="flex gap-2">
+                  <input id="gas-url-input" name="gasUrl" value="${esc(state.cloud.gasUrl)}" type="url" placeholder="https://script.google.com/macros/s/.../exec" class="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs font-mono bg-white" />
+                  <button type="button" onclick="App.testGasConnection()" class="px-3.5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shrink-0">Uji Koneksi</button>
+                </div>
               </div>
 
               <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
@@ -2082,6 +2094,25 @@ function getOrCreateSubFolder(parent, name) {
         document.execCommand("copy");
         window.getSelection().removeAllRanges();
         toast("Tersalin", "Kode Code.gs berhasil disalin.", "success");
+      },
+      async testGasConnection() {
+        const inp = document.getElementById("gas-url-input");
+        const url = (inp ? inp.value : state.cloud.gasUrl || "").trim();
+        if (!url || !url.startsWith("http")) {
+          toast("URL Kosong", "Masukkan URL Web App Google Apps Script terlebih dahulu.", "error");
+          return;
+        }
+        try {
+          const res = await fetch(url);
+          const json = await res.json();
+          if (json.status === "ok") {
+            toast("Koneksi Berhasil", "Endpoint Google Apps Script aktif dan siap menerima gambar!", "success");
+          } else {
+            toast("Respon Tidak Dikenal", "URL merespon tetapi bukan endpoint Code.gs yang valid.", "error");
+          }
+        } catch (err) {
+          toast("Koneksi Gagal", "Pastikan Web App di-deploy dengan akses 'Siapa saja (Anyone)'.", "error");
+        }
       }
     };
 
