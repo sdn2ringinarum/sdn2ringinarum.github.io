@@ -137,48 +137,13 @@
   <!-- MAIN DYNAMIC VIEWPORT -->
   <main id="app-root" class="flex-1 min-h-screen bg-slate-50"></main>
 
-  <!-- FOOTER -->
-  <footer class="bg-slate-950 text-slate-300 border-t border-slate-800 mt-auto">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
-        <div class="md:col-span-5 space-y-3">
-          <div class="flex items-center gap-3">
-            <div id="footer-logo-box" class="w-10 h-10 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center font-bold text-lg overflow-hidden">
-              <i class="fa-solid fa-graduation-cap"></i>
-            </div>
-            <div>
-              <h3 id="footer-school-name" class="font-heading font-bold text-white text-base">SD N 2 Ringinarum</h3>
-              <p id="footer-school-meta" class="text-xs text-amber-400 font-semibold">NPSN: 20321740 • Akreditasi A</p>
-            </div>
-          </div>
-          <p id="footer-school-desc" class="text-xs text-slate-400 leading-relaxed">
-            "Cerdas, Mandiri, Berakhlak Mulia" — Portal informasi publik, direktori pendidik, jejak alumni, dan layanan digital sekolah dasar.
-          </p>
-        </div>
-
-        <div class="md:col-span-4 space-y-2 text-xs">
-          <h4 class="font-heading font-bold text-white uppercase tracking-wider mb-3">Kontak & Alamat</h4>
-          <p class="flex items-start gap-2.5"><i class="fa-solid fa-location-dot text-amber-400 mt-0.5"></i> <span id="footer-address">Jl. Raya Ringinarum, Kec. Ringinarum, Kab. Kendal</span></p>
-          <p class="flex items-center gap-2.5"><i class="fa-solid fa-envelope text-amber-400"></i> <span id="footer-email">sdn2ringinarum@gmail.com</span></p>
-          <p class="flex items-center gap-2.5"><i class="fa-solid fa-phone text-amber-400"></i> <span id="footer-phone">(0294) 381240</span></p>
-        </div>
-
-        <div class="md:col-span-3 space-y-2 text-xs">
-          <h4 class="font-heading font-bold text-white uppercase tracking-wider mb-3">Navigasi</h4>
-          <ul class="space-y-2">
-            <li><button onclick="App.go('beranda')" class="hover:text-amber-400 transition">Beranda Utama</button></li>
-            <li><button onclick="App.go('aplikasi')" class="hover:text-amber-400 transition">Portal Aplikasi Guru</button></li>
-            <li><button onclick="App.go('saran')" class="hover:text-amber-400 transition">Kotak Saran & Kesan</button></li>
-            <li><button onclick="App.go('pengaturan')" class="hover:text-amber-400 transition">Pengaturan Admin</button></li>
-          </ul>
-        </div>
-      </div>
-      <div class="mt-10 pt-6 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
-        <p>&copy; <span id="footer-year">2026</span> SD N 2 Ringinarum. Hak Cipta Dilindungi.</p>
-        <p class="font-mono text-slate-400">Developed by Arifna Hidayatallah</p>
-      </div>
+  <!-- COMPACT COPYRIGHT BAR -->
+  <div class="bg-slate-950 text-slate-400 border-t border-slate-800 py-5 px-4 sm:px-6 lg:px-8 text-xs">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+      <p>&copy; <span id="footer-year">2026</span> <span id="footer-school-name">SD N 2 Ringinarum</span>. Hak Cipta Dilindungi.</p>
+      <p class="text-slate-400 font-medium">Developed by Arifna Hidayatallah</p>
     </div>
-  </footer>
+  </div>
 
   <!-- GLOBAL MODAL LAYER (LIGHTBOX, CRUD FORMS, DELETE CONFIRMATION) -->
   <div id="modal-layer" class="hidden fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-xs flex items-center justify-center p-4"></div>
@@ -194,8 +159,11 @@
       appId: "1:1062687746650:web:292b0b321d1223f6008663"
     };
 
-    const LS_DATA_KEY = "sdn2ringinarum_v2_data";
+    const DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbyybhNNxKMVZPFhu7DagVD0oI2TaRYoFH5HltW6oRi8KVVfj5--hn_8KtcLdApH6S3y/exec";
     const SS_AUTH_KEY = "sdn2ringinarum_v2_auth";
+
+    // Bersihkan sisa penyimpanan data lama di localStorage browser
+    try { localStorage.removeItem("sdn2ringinarum_v2_data"); } catch {}
 
     const INITIAL_DATA = {
       school: {
@@ -203,12 +171,12 @@
         npsn: "20321740",
         slogan: "Cerdas, Mandiri, Berakhlak Mulia",
         academicYear: "2026/2027",
-        accreditation: "A",
+        accreditation: "B",
         activeStudents: 141,
         dapoUrl: "https://dapo.kemendikdasmen.go.id/sekolah?npsn=20321740",
         email: "sdn2ringinarum@gmail.com",
-        phone: "(0294) 381240",
-        address: "Jl. Raya Ringinarum, Kec. Ringinarum, Kab. Kendal, Jawa Tengah",
+        phone: "-",
+        address: "Jl. Ringinarum - Ngerjo, Kec. Ringinarum, Kab. Kendal, Jawa Tengah",
         logoUrl: "",
         vision: "Terwujudnya Peserta Didik yang Beriman, Bertakwa, Cerdas, Terampil, Mandiri, dan Berakhlak Mulia serta Berwawasan Lingkungan.",
         missions: [
@@ -224,12 +192,7 @@
         { id: "t-3", name: "Ratna Dewi Kartika, S.Pd.", nip: "19900322 201903 2 008", role: "Guru Kelas IV", status: "Aktif", statusNote: "", servicePeriod: "2019 - Sekarang", photoUrl: "" },
         { id: "t-4", name: "Drs. H. Slamet Riyadi", nip: "19630410 198405 1 002", role: "Guru Kelas V", status: "Tidak Aktif", statusNote: "Pensiun", servicePeriod: "1992 - 2023", photoUrl: "" }
       ],
-      alumni: [
-        { id: "a-1", name: "Muhammad Rizky Pratama", graduationYear: "2025", nisn: "0124589631", nextSchool: "SMP N 1 Ringinarum", phone: "081234567890", photoUrl: "" },
-        { id: "a-2", name: "Aisyah Putri Ramadhani", graduationYear: "2025", nisn: "0127845120", nextSchool: "MTs N 2 Kendal", phone: "085712349876", photoUrl: "" },
-        { id: "a-3", name: "Dimas Saputra", graduationYear: "2024", nisn: "0119856234", nextSchool: "SMP N 1 Weleri", phone: "", photoUrl: "" },
-        { id: "a-4", name: "Nabila Zahra Khairunnisa", graduationYear: "2024", nisn: "0116547892", nextSchool: "SMP N 2 Pegandon", phone: "", photoUrl: "" }
-      ],
+      alumni: [],
       gallery: [
         { id: "g-1", title: "Upacara Bendera Hari Pendidikan Nasional", date: "2026-05-02", category: "Upacara", description: "Seluruh peserta didik dan guru mengikuti upacara bendera dengan pakaian adat nusantara.", imageUrl: "https://placehold.co/800x550/1e3a8a/fbbf24?text=Upacara+Hardiknas+SDN+2+Ringinarum" },
         { id: "g-2", title: "Kegiatan Pramuka & Persari", date: "2026-08-14", category: "Ekstrakurikuler", description: "Melatih kemandirian dan kerja sama tim melalui kegiatan kepramukaan gugus depan.", imageUrl: "https://placehold.co/800x550/0f172a/38bdf8?text=Pramuka+SDN+2+Ringinarum" },
@@ -248,7 +211,7 @@
         { id: "app-2", name: "Administrasi Guru", url: "https://sdn2ringinarum.github.io/admin-guru", description: "Perangkat pembelajaran, modul ajar, jurnal harian, presensi, dan dokumen administrasi pendidik.", icon: "fa-solid fa-clipboard-list" }
       ],
       cloud: {
-        gasUrl: "",
+        gasUrl: DEFAULT_GAS_URL,
         firebase: { ...DEFAULT_FIREBASE }
       }
     };
@@ -256,29 +219,12 @@
     // Baca sesi login secara sinkron sebelum render pertama (0% kedip)
     let initialAuth = null;
     try {
-      const s = sessionStorage.getItem(SS_AUTH_KEY) || localStorage.getItem(SS_AUTH_KEY);
+      const s = sessionStorage.getItem(SS_AUTH_KEY);
       if (s) initialAuth = JSON.parse(s);
     } catch {}
 
-    // Muat data lokal secara sinkron sebelum render pertama
+    // State murni di memori & Cloud Firestore (tanpa penyimpanan data di localStorage browser)
     let state = JSON.parse(JSON.stringify(INITIAL_DATA));
-    try {
-      const saved = localStorage.getItem(LS_DATA_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed.school) state.school = { ...state.school, ...parsed.school };
-        if (Array.isArray(parsed.teachers)) state.teachers = parsed.teachers;
-        if (Array.isArray(parsed.alumni)) state.alumni = parsed.alumni;
-        if (Array.isArray(parsed.gallery)) state.gallery = parsed.gallery;
-        if (Array.isArray(parsed.feedbacks)) state.feedbacks = parsed.feedbacks;
-        if (Array.isArray(parsed.users) && parsed.users.length) state.users = parsed.users;
-        if (Array.isArray(parsed.teacherApps) && parsed.teacherApps.length) state.teacherApps = parsed.teacherApps;
-        if (parsed.cloud) {
-          state.cloud.gasUrl = parsed.cloud.gasUrl || "";
-          if (parsed.cloud.firebase) state.cloud.firebase = { ...DEFAULT_FIREBASE, ...parsed.cloud.firebase };
-        }
-      }
-    } catch {}
 
     let db = null;
     let unsubCloud = null;
@@ -302,6 +248,7 @@
       teacherFilter: "aktif",
       alumniSearch: "",
       alumniYear: "",
+      alumniLimit: "3",
       feedbackRole: "",
       adminAlumniSearch: "",
       adminAlumniYear: "",
@@ -349,6 +296,16 @@
         return 50;
       };
       return [...list].sort((a, b) => getPriority(a.role) - getPriority(b.role));
+    };
+
+    // Urutkan Alumni: Tahun Lulus Terbaru dulu, kemudian Abjad Nama A-Z
+    const sortAlumni = (list) => {
+      return [...list].sort((a, b) => {
+        const yearA = parseInt(a.graduationYear, 10) || 0;
+        const yearB = parseInt(b.graduationYear, 10) || 0;
+        if (yearB !== yearA) return yearB - yearA;
+        return String(a.name || "").localeCompare(String(b.name || ""), "id", { sensitivity: "base" });
+      });
     };
 
     const toast = (title, msg, type = "success") => {
@@ -449,13 +406,12 @@
         throw new Error(json.message || "Google Apps Script gagal menyimpan gambar ke Google Drive.");
       }
 
-      toast("Tersimpan di Google Drive", `Berhasil masuk folder Foto_Website_SDN2Ringinarum/${category}`, "success");
+      toast("Unggah File Berhasil", `File ${file.name} berhasil diunggah ke Google Drive.`, "success");
       return json.url;
     };
 
-    // Simpan Data Teks ke LocalStorage & Firebase Firestore
+    // Simpan Data Teks Langsung ke Firebase Firestore (Tanpa localStorage browser)
     const persistData = async (msg = "") => {
-      localStorage.setItem(LS_DATA_KEY, JSON.stringify(state));
       if (db) {
         try {
           const payload = {
@@ -466,13 +422,15 @@
             feedbacks: state.feedbacks,
             users: state.users,
             teacherApps: state.teacherApps,
+            cloudGasUrl: state.cloud.gasUrl || DEFAULT_GAS_URL,
             updatedAt: new Date().toISOString()
           };
           await window.__fbSetDoc(window.__fbDoc(db, "sdn2ringinarum_data", "portal_state"), payload, { merge: true });
           ui.cloudConnected = true;
         } catch (err) {
-          console.warn("Cloud sync fallback to local:", err);
+          console.warn("Cloud sync error:", err);
           ui.cloudConnected = false;
+          toast("Gagal Sinkronisasi Cloud", "Periksa koneksi internet Anda.", "error");
         }
       }
       if (msg) toast("Berhasil", msg, "success");
@@ -496,6 +454,7 @@
             feedbacks: state.feedbacks,
             users: state.users,
             teacherApps: state.teacherApps,
+            cloudGasUrl: state.cloud.gasUrl || DEFAULT_GAS_URL,
             updatedAt: new Date().toISOString()
           });
         } else {
@@ -508,7 +467,7 @@
           if (Array.isArray(d.feedbacks)) state.feedbacks = d.feedbacks;
           if (Array.isArray(d.users) && d.users.length) state.users = d.users;
           if (Array.isArray(d.teacherApps) && d.teacherApps.length) state.teacherApps = d.teacherApps;
-          localStorage.setItem(LS_DATA_KEY, JSON.stringify(state));
+          if (d.cloudGasUrl) state.cloud.gasUrl = d.cloudGasUrl;
           isRemoteSyncing = false;
         }
         unsubCloud = window.__fbOnSnapshot(ref, (s) => {
@@ -525,11 +484,11 @@
               users: Array.isArray(d.users) && d.users.length ? d.users : state.users,
               teacherApps: Array.isArray(d.teacherApps) && d.teacherApps.length ? d.teacherApps : state.teacherApps
             };
+            if (d.cloudGasUrl) state.cloud.gasUrl = d.cloudGasUrl;
             const nextHash = JSON.stringify(nextState);
             if (nextHash !== lastDataHash) {
               lastDataHash = nextHash;
               Object.assign(state, nextState);
-              localStorage.setItem(LS_DATA_KEY, JSON.stringify(state));
               render();
               return;
             }
@@ -547,7 +506,7 @@
     };
     window.__startCloudSync = connectFirebase;
 
-    // Sinkronisasi Header, Footer, Favicon & Active Nav State
+    // Sinkronisasi Header, Compact Footer, Favicon & Active Nav State
     const syncChrome = () => {
       const s = state.school;
       const logo = imgUrl(s.logoUrl);
@@ -572,24 +531,8 @@
           : `<div class="w-full h-full bg-slate-900 rounded-[14px] flex items-center justify-center text-amber-400"><i class="fa-solid fa-graduation-cap text-lg md:text-xl"></i></div>`;
       }
 
-      const fLogo = document.getElementById("footer-logo-box");
       const fName = document.getElementById("footer-school-name");
-      const fMeta = document.getElementById("footer-school-meta");
-      const fDesc = document.getElementById("footer-school-desc");
-      const fAddr = document.getElementById("footer-address");
-      const fMail = document.getElementById("footer-email");
-      const fPhone = document.getElementById("footer-phone");
-      if (fLogo) {
-        fLogo.innerHTML = logo
-          ? `<img src="${esc(logo)}" referrerpolicy="no-referrer" class="w-full h-full object-contain bg-white p-1" alt="Logo" />`
-          : `<i class="fa-solid fa-graduation-cap"></i>`;
-      }
       if (fName) fName.textContent = s.name;
-      if (fMeta) fMeta.textContent = `NPSN: ${s.npsn} • Akreditasi ${s.accreditation}`;
-      if (fDesc) fDesc.textContent = `"${s.slogan}" — Portal informasi publik, direktori pendidik, jejak alumni, dan layanan digital sekolah dasar.`;
-      if (fAddr) fAddr.textContent = s.address;
-      if (fMail) fMail.textContent = s.email;
-      if (fPhone) fPhone.textContent = s.phone;
 
       document.querySelectorAll(".nav-btn").forEach(btn => {
         const active = btn.dataset.nav === ui.tab;
@@ -610,6 +553,52 @@
     // =========================================================
     // VIEW RENDERERS
     // =========================================================
+    const getFilteredAlumni = () => {
+      const sorted = sortAlumni(state.alumni);
+      const q = ui.alumniSearch.toLowerCase().trim();
+      const filtered = sorted.filter(a => {
+        const matchQ = !q || a.name.toLowerCase().includes(q) || (a.nextSchool || "").toLowerCase().includes(q);
+        const matchY = !ui.alumniYear || String(a.graduationYear) === ui.alumniYear;
+        return matchQ && matchY;
+      });
+      const limit = ui.alumniLimit === "all" ? filtered.length : (parseInt(ui.alumniLimit, 10) || 3);
+      return { total: filtered.length, items: filtered.slice(0, limit) };
+    };
+
+    const renderAlumniCardsHTML = () => {
+      const { total, items } = getFilteredAlumni();
+      if (!items.length) {
+        return `<div class="py-10 text-center text-slate-500 text-sm">${state.alumni.length ? "Tidak ditemukan data alumni yang cocok." : "Belum ada data alumni yang ditambahkan."}</div>`;
+      }
+      return `
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
+          ${items.map(a => {
+            const aImg = imgUrl(a.photoUrl);
+            return `
+              <div class="p-4 rounded-2xl border border-slate-200/80 bg-slate-50/50 hover:bg-white transition flex items-center gap-4">
+                <div class="w-14 h-14 rounded-2xl bg-blue-900 text-amber-400 font-heading font-bold text-lg flex items-center justify-center shrink-0 overflow-hidden">
+                  ${aImg
+                    ? `<img src="${esc(aImg)}" referrerpolicy="no-referrer" onerror="this.outerHTML='<span>${esc(initials(a.name))}</span>'" class="w-full h-full object-cover" />`
+                    : `<span>${esc(initials(a.name))}</span>`
+                  }
+                </div>
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center justify-between gap-2">
+                    <h3 class="font-bold text-sm text-slate-900 truncate">${esc(a.name)}</h3>
+                    <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-100 text-blue-800 shrink-0">${esc(a.graduationYear)}</span>
+                  </div>
+                  <p class="text-xs text-slate-600 mt-1 truncate"><i class="fa-solid fa-school-flag text-amber-500 mr-1"></i> ${esc(a.nextSchool || "Melanjutkan Pendidikan")}</p>
+                </div>
+              </div>
+            `;
+          }).join("")}
+        </div>
+        <div class="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
+          <span>Menampilkan <strong>${items.length}</strong> dari <strong>${total}</strong> alumni (Urutan: Tahun Lulus Terbaru & Abjad A–Z)</span>
+        </div>
+      `;
+    };
+
     const renderBeranda = () => {
       const s = state.school;
       const logo = imgUrl(s.logoUrl);
@@ -619,12 +608,6 @@
       const shownT = ui.teacherFilter === "aktif" ? activeT : retiredT;
 
       const years = Array.from(new Set(state.alumni.map(a => String(a.graduationYear || "").trim()).filter(Boolean))).sort((a, b) => b.localeCompare(a));
-      const q = ui.alumniSearch.toLowerCase().trim();
-      const shownAlumni = state.alumni.filter(a => {
-        const matchQ = !q || a.name.toLowerCase().includes(q) || (a.nextSchool || "").toLowerCase().includes(q);
-        const matchY = !ui.alumniYear || String(a.graduationYear) === ui.alumniYear;
-        return matchQ && matchY;
-      });
       const approvedFb = state.feedbacks.filter(f => f.approved);
 
       return `
@@ -633,11 +616,7 @@
           <section class="mesh-navy text-white relative overflow-hidden">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-20">
               <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-                <div class="lg:col-span-8 space-y-5">
-                  <div class="inline-flex flex-wrap items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/15 text-xs font-semibold text-amber-300">
-                    <i class="fa-solid fa-award"></i>
-                    <span>NPSN: ${esc(s.npsn)} • Tahun Ajaran ${esc(s.academicYear)}</span>
-                  </div>
+                <div class="lg:col-span-7 space-y-5">
                   <h1 class="font-heading text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight">
                     Selamat Datang di <span class="text-amber-400">${esc(s.name)}</span>
                   </h1>
@@ -646,26 +625,37 @@
                     Mewujudkan generasi penerus bangsa yang unggul dalam prestasi akademik, berkarakter Pancasila, mandiri, serta peduli terhadap sesama dan lingkungan.
                   </p>
                   <div class="pt-2 flex flex-wrap gap-3">
-                    <button onclick="document.getElementById('direktori-guru').scrollIntoView({behavior:'smooth'})" class="px-6 py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-sm shadow-lg transition">
+                    <button onclick="document.getElementById('direktori-guru').scrollIntoView({behavior:'smooth'})" class="px-5 py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-sm shadow-lg transition">
                       <i class="fa-solid fa-users mr-2"></i> Direktori Pendidik
                     </button>
-                    <button onclick="document.getElementById('direktori-alumni').scrollIntoView({behavior:'smooth'})" class="px-6 py-3 rounded-2xl bg-blue-800/80 hover:bg-blue-700 text-white border border-blue-400/30 font-bold text-sm shadow-lg transition">
+                    <button onclick="document.getElementById('direktori-alumni').scrollIntoView({behavior:'smooth'})" class="px-5 py-3 rounded-2xl bg-blue-800/80 hover:bg-blue-700 text-white border border-blue-400/30 font-bold text-sm shadow-lg transition">
                       <i class="fa-solid fa-user-graduate mr-2 text-amber-400"></i> Direktori Alumni
                     </button>
-                    <button onclick="App.go('saran')" class="px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white border border-white/20 font-bold text-sm transition">
+                    <button onclick="App.go('saran')" class="px-5 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white border border-white/20 font-bold text-sm transition">
                       <i class="fa-solid fa-comment-dots mr-2 text-amber-400"></i> Kotak Saran & Kesan
                     </button>
                   </div>
                 </div>
 
-                <div class="lg:col-span-4 flex justify-center">
-                  <div class="w-56 h-56 sm:w-64 sm:h-64 rounded-3xl bg-white/10 border border-white/20 p-6 backdrop-blur-md shadow-2xl flex flex-col items-center justify-center text-center">
-                    ${logo
-                      ? `<img src="${esc(logo)}" referrerpolicy="no-referrer" class="w-32 h-32 sm:w-36 sm:h-36 object-contain drop-shadow-xl" alt="Logo ${esc(s.name)}" />`
-                      : `<div class="w-28 h-28 rounded-3xl bg-amber-400 text-slate-950 flex items-center justify-center text-5xl shadow-xl"><i class="fa-solid fa-school"></i></div>`
-                    }
-                    <p class="mt-4 font-heading font-bold text-sm text-white">${esc(s.name)}</p>
-                    <p class="text-[11px] text-amber-300 font-semibold">${esc(s.slogan)}</p>
+                <!-- KARTU LOGO + AKREDITASI, KONTAK & ALAMAT DI BAWAHNYA -->
+                <div class="lg:col-span-5 flex justify-center">
+                  <div class="w-full max-w-sm rounded-3xl bg-white/10 border border-white/20 p-6 backdrop-blur-md shadow-2xl flex flex-col items-center text-center">
+                    <div class="w-32 h-32 sm:w-36 sm:h-36 rounded-2xl bg-white p-2.5 shadow-xl flex items-center justify-center overflow-hidden">
+                      ${logo
+                        ? `<img src="${esc(logo)}" referrerpolicy="no-referrer" class="w-full h-full object-contain" alt="Logo ${esc(s.name)}" />`
+                        : `<div class="w-full h-full rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center text-5xl"><i class="fa-solid fa-school"></i></div>`
+                      }
+                    </div>
+                    <p class="mt-4 font-heading font-extrabold text-lg text-white">${esc(s.name)}</p>
+                    <p class="text-xs text-amber-300 font-bold">NPSN: ${esc(s.npsn)} • Akreditasi ${esc(s.accreditation)}</p>
+                    <p class="text-[11px] text-blue-100 mt-0.5">"${esc(s.slogan)}"</p>
+
+                    <div class="w-full mt-4 pt-4 border-t border-white/15 text-left space-y-2 text-xs text-slate-200">
+                      <p class="font-bold text-[11px] uppercase tracking-wider text-amber-300">Kontak & Alamat</p>
+                      <p class="flex items-start gap-2"><i class="fa-solid fa-location-dot text-amber-400 mt-0.5 shrink-0"></i> <span>${esc(s.address)}</span></p>
+                      <p class="flex items-center gap-2"><i class="fa-solid fa-envelope text-amber-400 shrink-0"></i> <span>${esc(s.email)}</span></p>
+                      <p class="flex items-center gap-2"><i class="fa-solid fa-phone text-amber-400 shrink-0"></i> <span>${esc(s.phone || "-")}</span></p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -828,41 +818,28 @@
                 <div>
                   <span class="text-xs font-bold uppercase tracking-widest text-amber-700 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">Jejak Lulusan</span>
                   <h2 class="font-heading text-2xl font-extrabold text-slate-900 mt-2">Direktori Alumni ${esc(s.name)}</h2>
-                  <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Pencarian nama lulusan, SMP/MTs tujuan, dan filter tahun kelulusan.</p>
+                  <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Pencarian nama lulusan, SMP/MTs tujuan, filter tahun kelulusan, dan jumlah tampilan.</p>
                 </div>
-                <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
-                  <input type="text" value="${esc(ui.alumniSearch)}" oninput="App.setAlumniSearch(this.value)" placeholder="Cari nama atau SMP/MTs tujuan..." class="px-4 py-2.5 rounded-xl border border-slate-300 text-sm sm:w-64 focus:outline-none focus:ring-2 focus:ring-blue-800" />
+                <div class="flex flex-col sm:flex-row flex-wrap gap-3 w-full lg:w-auto">
+                  <input id="public-alumni-search" type="text" value="${esc(ui.alumniSearch)}" oninput="App.setAlumniSearch(this.value)" placeholder="Cari nama atau SMP/MTs tujuan..." class="px-4 py-2.5 rounded-xl border border-slate-300 text-sm sm:w-60 focus:outline-none focus:ring-2 focus:ring-blue-800" />
                   <select onchange="App.setAlumniYear(this.value)" class="px-4 py-2.5 rounded-xl border border-slate-300 text-sm font-medium text-slate-700 bg-white">
                     <option value="">Semua Tahun Lulus</option>
                     ${years.map(y => `<option value="${esc(y)}" ${ui.alumniYear === y ? "selected" : ""}>Angkatan ${esc(y)}</option>`).join("")}
                   </select>
+                  <select onchange="App.setAlumniLimit(this.value)" class="px-4 py-2.5 rounded-xl border border-slate-300 text-sm font-bold text-blue-900 bg-blue-50/60">
+                    <option value="3" ${ui.alumniLimit === "3" ? "selected" : ""}>Tampilkan 3 (1 Baris)</option>
+                    <option value="5" ${ui.alumniLimit === "5" ? "selected" : ""}>Tampilkan 5</option>
+                    <option value="25" ${ui.alumniLimit === "25" ? "selected" : ""}>Tampilkan 25</option>
+                    <option value="50" ${ui.alumniLimit === "50" ? "selected" : ""}>Tampilkan 50</option>
+                    <option value="100" ${ui.alumniLimit === "100" ? "selected" : ""}>Tampilkan 100</option>
+                    <option value="all" ${ui.alumniLimit === "all" ? "selected" : ""}>Semua (${state.alumni.length})</option>
+                  </select>
                 </div>
               </div>
 
-              ${shownAlumni.length ? `
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
-                  ${shownAlumni.map(a => {
-                    const aImg = imgUrl(a.photoUrl);
-                    return `
-                      <div class="p-4 rounded-2xl border border-slate-200/80 bg-slate-50/50 hover:bg-white transition flex items-center gap-4">
-                        <div class="w-14 h-14 rounded-2xl bg-blue-900 text-amber-400 font-heading font-bold text-lg flex items-center justify-center shrink-0 overflow-hidden">
-                          ${aImg
-                            ? `<img src="${esc(aImg)}" referrerpolicy="no-referrer" onerror="this.outerHTML='<span>${esc(initials(a.name))}</span>'" class="w-full h-full object-cover" />`
-                            : `<span>${esc(initials(a.name))}</span>`
-                          }
-                        </div>
-                        <div class="min-w-0 flex-1">
-                          <div class="flex items-center justify-between gap-2">
-                            <h3 class="font-bold text-sm text-slate-900 truncate">${esc(a.name)}</h3>
-                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-100 text-blue-800 shrink-0">${esc(a.graduationYear)}</span>
-                          </div>
-                          <p class="text-xs text-slate-600 mt-1 truncate"><i class="fa-solid fa-school-flag text-amber-500 mr-1"></i> ${esc(a.nextSchool || "Melanjutkan Pendidikan")}</p>
-                        </div>
-                      </div>
-                    `;
-                  }).join("")}
-                </div>
-              ` : `<div class="py-10 text-center text-slate-500 text-sm">Tidak ditemukan data alumni yang cocok.</div>`}
+              <div id="public-alumni-list">
+                ${renderAlumniCardsHTML()}
+              </div>
             </div>
           </section>
 
@@ -1232,14 +1209,12 @@
           </div>
         `;
       } else if (ui.adminSub === "alumni") {
-        const q = ui.adminAlumniSearch.toLowerCase().trim();
-        const list = state.alumni.filter(a => !q || a.name.toLowerCase().includes(q) || (a.nisn || "").includes(q) || (a.nextSchool || "").toLowerCase().includes(q));
         subContent = `
           <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200 space-y-6">
             <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 pb-4">
               <div>
                 <h2 class="font-heading text-lg font-bold text-slate-900">3. Kelola Data Alumni</h2>
-                <p class="text-xs text-slate-500">Manajemen data alumni beserta impor/ekspor template Excel.</p>
+                <p class="text-xs text-slate-500">Manajemen data alumni beserta impor/ekspor template Excel (diurutkan tahun terbaru & abjad).</p>
               </div>
               <div class="flex flex-wrap items-center gap-2">
                 <button onclick="App.downloadAlumniXLS()" class="px-3.5 py-2 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold">
@@ -1254,33 +1229,9 @@
                 </button>
               </div>
             </div>
-            <input type="text" value="${esc(ui.adminAlumniSearch)}" oninput="App.setAdminAlumniSearch(this.value)" placeholder="Cari nama, NISN, atau SMP/MTs..." class="w-full sm:w-80 px-4 py-2 rounded-xl border border-slate-300 text-sm" />
-            <div class="overflow-x-auto">
-              <table class="w-full text-left border-collapse">
-                <thead>
-                  <tr class="bg-slate-50 border-y border-slate-200 text-[11px] font-bold uppercase text-slate-500">
-                    <th class="py-3 px-4">Nama Alumni</th>
-                    <th class="py-3 px-4">Tahun Lulus</th>
-                    <th class="py-3 px-4">NISN</th>
-                    <th class="py-3 px-4">SMP / MTs Tujuan</th>
-                    <th class="py-3 px-4 text-right">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100 text-sm">
-                  ${list.map(a => `
-                    <tr>
-                      <td class="py-3 px-4 font-bold text-slate-900">${esc(a.name)}</td>
-                      <td class="py-3 px-4 text-xs font-bold text-blue-800">${esc(a.graduationYear)}</td>
-                      <td class="py-3 px-4 text-xs font-mono text-slate-600">${esc(a.nisn || "-")}</td>
-                      <td class="py-3 px-4 text-xs text-slate-700">${esc(a.nextSchool || "-")}</td>
-                      <td class="py-3 px-4 text-right space-x-1">
-                        <button onclick="App.openAlumniForm('${esc(a.id)}')" class="p-2 rounded-lg text-blue-700 hover:bg-blue-50"><i class="fa-solid fa-pen-to-square"></i></button>
-                        <button onclick="App.askDelete('alumni', '${esc(a.id)}', '${esc(a.name)}')" class="p-2 rounded-lg text-rose-600 hover:bg-rose-50"><i class="fa-solid fa-trash-can"></i></button>
-                      </td>
-                    </tr>
-                  `).join("")}
-                </tbody>
-              </table>
+            <input id="admin-alumni-search" type="text" value="${esc(ui.adminAlumniSearch)}" oninput="App.setAdminAlumniSearch(this.value)" placeholder="Cari nama, NISN, atau SMP/MTs..." class="w-full sm:w-80 px-4 py-2 rounded-xl border border-slate-300 text-sm" />
+            <div id="admin-alumni-table-wrap" class="overflow-x-auto">
+              ${App.renderAdminAlumniTableHTML()}
             </div>
           </div>
         `;
@@ -1613,11 +1564,66 @@ function getOrCreateSubFolder(parent, name) {
         icon.className = open ? "fa-solid fa-xmark text-lg" : "fa-solid fa-bars text-lg";
       },
       setTeacherFilter(f) { ui.teacherFilter = f; render(); },
-      setAlumniSearch(v) { ui.alumniSearch = v; render(); },
-      setAlumniYear(v) { ui.alumniYear = v; render(); },
+      setAlumniSearch(v) {
+        ui.alumniSearch = v;
+        const wrap = document.getElementById("public-alumni-list");
+        if (wrap) wrap.innerHTML = renderAlumniCardsHTML();
+        else render();
+      },
+      setAlumniYear(v) {
+        ui.alumniYear = v;
+        const wrap = document.getElementById("public-alumni-list");
+        if (wrap) wrap.innerHTML = renderAlumniCardsHTML();
+        else render();
+      },
+      setAlumniLimit(v) {
+        ui.alumniLimit = v;
+        const wrap = document.getElementById("public-alumni-list");
+        if (wrap) wrap.innerHTML = renderAlumniCardsHTML();
+        else render();
+      },
       setFeedbackRole(v) { ui.feedbackRole = v; render(); },
       setAdminSub(s) { ui.adminSub = s; render(); },
-      setAdminAlumniSearch(v) { ui.adminAlumniSearch = v; render(); },
+      renderAdminAlumniTableHTML() {
+        const q = ui.adminAlumniSearch.toLowerCase().trim();
+        const list = sortAlumni(state.alumni).filter(a => !q || a.name.toLowerCase().includes(q) || (a.nisn || "").includes(q) || (a.nextSchool || "").toLowerCase().includes(q));
+        if (!list.length) {
+          return `<div class="py-8 text-center text-slate-500 text-sm">${state.alumni.length ? "Tidak ditemukan data alumni yang cocok." : "Belum ada data alumni."}</div>`;
+        }
+        return `
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-50 border-y border-slate-200 text-[11px] font-bold uppercase text-slate-500">
+                <th class="py-3 px-4">Nama Alumni</th>
+                <th class="py-3 px-4">Tahun Lulus</th>
+                <th class="py-3 px-4">NISN</th>
+                <th class="py-3 px-4">SMP / MTs Tujuan</th>
+                <th class="py-3 px-4 text-right">Aksi</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-sm">
+              ${list.map(a => `
+                <tr>
+                  <td class="py-3 px-4 font-bold text-slate-900">${esc(a.name)}</td>
+                  <td class="py-3 px-4 text-xs font-bold text-blue-800">${esc(a.graduationYear)}</td>
+                  <td class="py-3 px-4 text-xs font-mono text-slate-600">${esc(a.nisn || "-")}</td>
+                  <td class="py-3 px-4 text-xs text-slate-700">${esc(a.nextSchool || "-")}</td>
+                  <td class="py-3 px-4 text-right space-x-1">
+                    <button onclick="App.openAlumniForm('${esc(a.id)}')" class="p-2 rounded-lg text-blue-700 hover:bg-blue-50"><i class="fa-solid fa-pen-to-square"></i></button>
+                    <button onclick="App.askDelete('alumni', '${esc(a.id)}', '${esc(a.name)}')" class="p-2 rounded-lg text-rose-600 hover:bg-rose-50"><i class="fa-solid fa-trash-can"></i></button>
+                  </td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        `;
+      },
+      setAdminAlumniSearch(v) {
+        ui.adminAlumniSearch = v;
+        const wrap = document.getElementById("admin-alumni-table-wrap");
+        if (wrap) wrap.innerHTML = App.renderAdminAlumniTableHTML();
+        else render();
+      },
       toggleGasGuide() { ui.showGasGuide = !ui.showGasGuide; render(); },
       openApp(id) { ui.selectedAppId = id; render(); window.scrollTo({ top: 0, behavior: "smooth" }); },
 
@@ -1684,14 +1690,12 @@ function getOrCreateSubFolder(parent, name) {
         if (!u.active) { toast("Akun Nonaktif", "Akun administrator ini sedang dinonaktifkan.", "error"); return; }
         ui.user = { id: u.id, name: u.name, email: u.email, role: u.role };
         sessionStorage.setItem(SS_AUTH_KEY, JSON.stringify(ui.user));
-        localStorage.setItem(SS_AUTH_KEY, JSON.stringify(ui.user));
         toast("Selamat Datang", `Berhasil masuk sebagai ${u.name}.`, "success");
         render();
       },
       logout() {
         ui.user = null;
         sessionStorage.removeItem(SS_AUTH_KEY);
-        localStorage.removeItem(SS_AUTH_KEY);
         toast("Keluar", "Sesi administrator diakhiri.", "info");
         render();
       },
@@ -2125,14 +2129,13 @@ function getOrCreateSubFolder(parent, name) {
       async saveCloud(e) {
         e.preventDefault();
         const fd = new FormData(e.target);
-        state.cloud.gasUrl = String(fd.get("gasUrl") || "").trim();
+        state.cloud.gasUrl = String(fd.get("gasUrl") || DEFAULT_GAS_URL).trim();
         state.cloud.firebase.projectId = String(fd.get("projectId") || DEFAULT_FIREBASE.projectId).trim();
         state.cloud.firebase.apiKey = String(fd.get("apiKey") || DEFAULT_FIREBASE.apiKey).trim();
         state.cloud.firebase.authDomain = String(fd.get("authDomain") || DEFAULT_FIREBASE.authDomain).trim();
         state.cloud.firebase.appId = String(fd.get("appId") || DEFAULT_FIREBASE.appId).trim();
-        localStorage.setItem(LS_DATA_KEY, JSON.stringify(state));
         await connectFirebase();
-        toast("Cloud Diperbarui", "Konfigurasi Cloud berhasil disimpan & dihubungkan ulang.", "success");
+        await persistData("Konfigurasi Cloud berhasil disimpan & dihubungkan ulang!");
       },
       copyGas() {
         const el = document.getElementById("gas-snippet");
