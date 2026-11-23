@@ -655,6 +655,23 @@
                       <p class="flex items-start gap-2"><i class="fa-solid fa-location-dot text-amber-400 mt-0.5 shrink-0"></i> <span>${esc(s.address)}</span></p>
                       <p class="flex items-center gap-2"><i class="fa-solid fa-envelope text-amber-400 shrink-0"></i> <span>${esc(s.email)}</span></p>
                       <p class="flex items-center gap-2"><i class="fa-solid fa-phone text-amber-400 shrink-0"></i> <span>${esc(s.phone || "-")}</span></p>
+                      <div class="pt-2.5 mt-2 border-t border-white/10 flex flex-wrap items-center gap-2">
+                        ${(s.facebookUrl || "https://www.facebook.com/sdnduaringinarum/") ? `
+                          <a href="${esc(s.facebookUrl || 'https://www.facebook.com/sdnduaringinarum/')}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600/30 hover:bg-blue-600/60 border border-blue-400/30 text-white text-[11px] font-semibold transition">
+                            <i class="fa-brands fa-facebook text-blue-300"></i> Facebook
+                          </a>
+                        ` : ""}
+                        ${(s.instagramUrl || "https://www.instagram.com/sdndua_ringinarum/") ? `
+                          <a href="${esc(s.instagramUrl || 'https://www.instagram.com/sdndua_ringinarum/')}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-pink-600/30 hover:bg-pink-600/60 border border-pink-400/30 text-white text-[11px] font-semibold transition">
+                            <i class="fa-brands fa-instagram text-pink-300"></i> Instagram
+                          </a>
+                        ` : ""}
+                        ${(s.tiktokUrl || "https://www.tiktok.com/@sdnduaringinarum") ? `
+                          <a href="${esc(s.tiktokUrl || 'https://www.tiktok.com/@sdnduaringinarum')}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900/60 hover:bg-slate-900/90 border border-white/20 text-white text-[11px] font-semibold transition">
+                            <i class="fa-brands fa-tiktok text-amber-300"></i> TikTok
+                          </a>
+                        ` : ""}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -2196,4 +2213,5 @@ function getOrCreateSubFolder(parent, name) {
   </script>
 </body>
 </html>
+
 
