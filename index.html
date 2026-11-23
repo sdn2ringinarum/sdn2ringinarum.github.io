@@ -827,7 +827,7 @@
                     ${years.map(y => `<option value="${esc(y)}" ${ui.alumniYear === y ? "selected" : ""}>Angkatan ${esc(y)}</option>`).join("")}
                   </select>
                   <select onchange="App.setAlumniLimit(this.value)" class="px-4 py-2.5 rounded-xl border border-slate-300 text-sm font-bold text-blue-900 bg-blue-50/60">
-                    <option value="3" ${ui.alumniLimit === "3" ? "selected" : ""}>Tampilkan 3 (1 Baris)</option>
+                    <option value="1" ${ui.alumniLimit === "1" ? "selected" : ""}>Tampilkan 1</option>
                     <option value="5" ${ui.alumniLimit === "5" ? "selected" : ""}>Tampilkan 5</option>
                     <option value="25" ${ui.alumniLimit === "25" ? "selected" : ""}>Tampilkan 25</option>
                     <option value="50" ${ui.alumniLimit === "50" ? "selected" : ""}>Tampilkan 50</option>
@@ -2196,3 +2196,4 @@ function getOrCreateSubFolder(parent, name) {
   </script>
 </body>
 </html>
+
